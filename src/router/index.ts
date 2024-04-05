@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import VR1 from '../views/VR1.vue'
+// import VR1 from '../views/VR1.vue'
 import VR2 from '../views/VR2.vue'
 
 const router = createRouter({
@@ -7,14 +7,14 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: {name: 'vr1'}
+      redirect: {name: 'vr2'}
     },
-    {
-      path: '/vr1',
-      name: 'vr1',
-      // component: () => import('@/views/VR1.vue')
-      component: VR1
-    },
+    // {
+    //   path: '/vr1',
+    //   name: 'vr1',
+    //   // component: () => import('@/views/VR1.vue')
+    //   component: VR1
+    // },
     {
       path: '/vr2',
       name: 'vr2',

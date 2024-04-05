@@ -20,5 +20,22 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  // define: {
+  //   THREE
+  // }
+  // build:{
+  //   rollupOptions: {
+  //     external: ['three'],
+  //     output: {
+  //       globals: {
+  //         three: 'THREE',
+  //         aframe: 'AFRAME'
+  //       }
+  //     }
+  //   }
+  // },
+  // optimizeDeps: {
+  //   exclude: ['three', 'three-mesh-ui', 'troika-three-text > three']
+  // }
 })
