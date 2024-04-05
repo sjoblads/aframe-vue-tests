@@ -45,12 +45,12 @@
           </a-link>
           <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" />
           <a-entity mesh-ui-block="contentDirection: row; justifyContent: space-evenly" >
-            <a-entity mesh-ui-block="width: 0.4; height: 0.3; offset: 0.05;" >
+            <a-entity mesh-ui-block="width: 0.2; height: 0.3; offset: 0.05;" >
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
+              <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" />
             </a-entity>
-            <a-entity mesh-ui-block="width: 0.4; height: 0.5; offset: 0.10; backgroundOpacity: 0;" >
+            <a-entity mesh-ui-block="width: 0.4; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
               <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity>
-              <a-troika-text position="0 0 0" depth-offset="0" value="whatshot" font-size="0.1" font="#icon-font" />
             </a-entity>
           </a-entity>
         </a-entity>

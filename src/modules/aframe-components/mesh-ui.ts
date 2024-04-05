@@ -3,6 +3,8 @@
   import ThreeMeshUI, { type Block } from 'three-mesh-ui';
   import type { Entity } from 'aframe';
   
+  const MESH_BLOCK_NAME = 'mesh-ui-block';
+  const MESH_TEXT_NAME = 'mesh-ui-text';
   export default function () {
     const blockLayoutSchema = {
       width: { type: "number", default: 1 },
@@ -32,23 +34,40 @@
       borderOpacity: {type: 'number', default: 1},
     }
     
-    const MESH_BLOCK_NAME = 'mesh-ui-block';
     
-    function whenComponentInitedTryAttachToMeshUiBlock(parent: Entity, myMeshUiBlock: Block) {
-          const meshComponent = parent.components[MESH_BLOCK_NAME];
-          if(!meshComponent) return;
-          if(meshComponent.initialized){
-            meshComponent.block.add(myMeshUiBlock);
-          }else {
-            console.log('waiting for parent component to be ready');
-            parent.addEventListener('componentinitialized', function(evt) {
-              if(evt.detail.name === MESH_BLOCK_NAME){
-                console.log('parent mesh block was initialized. Attaching to it');
-                const meshComponent = parent.components[MESH_BLOCK_NAME]
-                meshComponent.block.add(myMeshUiBlock);
-              }
-            })
-          }
+    function whenComponentInitedAttachToMeshUiBlock(parent: Entity, childBlock: Block) {
+        const meshComponent = parent.components[MESH_BLOCK_NAME];
+        if(!meshComponent) return;
+        if(meshComponent.initialized){
+          meshComponent.block.add(childBlock);
+        }else {
+          console.log('waiting for parent component to be ready');
+          parent.addEventListener('componentinitialized', function(evt) {
+            if(evt.detail.name === MESH_BLOCK_NAME){
+              console.log('parent mesh block was initialized. Attaching to it');
+              const meshComponent = parent.components[MESH_BLOCK_NAME]
+              meshComponent.block.add(childBlock);
+            }
+          })
+        }
+    }
+    function whenComponentInitedAddToMeshUiBlock(child: Entity, parentBlock: Block) {
+        // const meshComponent = child.components[MESH_BLOCK_NAME];
+        const meshComponent = getMeshUIComponent(child);
+        if(!meshComponent) return;
+        if(meshComponent.initialized){
+          parentBlock.add(meshComponent.block);
+        }else {
+          console.log('waiting for child component to be ready');
+          child.addEventListener('componentinitialized', function(evt) {
+            const name = evt.detail.name
+            if(name === MESH_BLOCK_NAME || name === MESH_TEXT_NAME){
+              console.log(`child mesh block ${name} was initialized. adding it as child`);
+              const meshComponent = child.components[name]
+              parentBlock.add(meshComponent.block);
+            }
+          })
+        }
     }
 
     // type BlockComponent = typeof blockComponentConstructor
@@ -77,41 +96,57 @@
             this.isUiRoot = true;
             this.el.object3D.add(this.block);
           } else {
-            whenComponentInitedTryAttachToMeshUiBlock(parent, this.block);
+            // whenComponentInitedTryAttachToMeshUiBlock(parent, this.block);
           }
           
           this.el.addEventListener('child-attached', (evt) => {
             evt.stopPropagation(); // We only care about direct children
             console.log('child attached:',evt.detail);
-            const entity = evt.detail.el as Entity;
+            // const entity = evt.detail.el as Entity;
 
             // console.log(typeof el);
             // if(!hasMeshUIComponent(el)) return;
             // this.block.add(el.object3D)
-            if(!hasMeshUIComponent(entity)){
-              console.log('found child that isnt a mesh-ui component. Adding the entity\'s object3D to this components block');
-              this.block.add(entity.object3D);
-            } 
+            // if(!hasMeshUIComponent(entity)){
+            //   console.log('found child that isnt a mesh-ui component. Adding the entity\'s object3D to this components block');
+            //   this.block.add(entity.object3D);
+            // } 
+            
+            rebuildChildren();
           });
 
           this.el.addEventListener('child-detached', (evt) => {
             evt.stopPropagation(); // We only care about direct children
             console.log('child detached:',evt.detail);
-            const el = evt.detail.el as Entity
-            if(!hasMeshUIComponent(el)) {
+            const childEntity = evt.detail.el as Entity
+            // Dont know why we need to do this. Thought "normal" entities would also be removed by the .clear() in rebuildChildren
+            if(!hasMeshUIComponent(childEntity)) {
               console.log('child detached that isnt a mesh-ui component. Removing the entity\'s object3D from this components block');
-              this.block.remove(el.object3D)
+              this.block.remove(childEntity.object3D)
             }
+            rebuildChildren();
           });
 
-          const children = this.el.children;
-          for(const child of children){
-            const entity = child as Entity;
-            if(!hasMeshUIComponent(entity)){
-              console.log('found child that isnt a mesh-ui component. Adding the entity\'s object3D to this components block');
-              this.block.add(entity.object3D);
-            } 
+          // NOTE: three-mesh-ui relies on the order of the children for calculating the layout.
+          // Specifically it seems that what matters is the order of calls to .add()
+          // I tried to change the children order manually but doesnt seem to have any impact.
+          // Thus we take the brute force way and remove all the children and rebuild it.
+          const rebuildChildren = () => {
+            console.log('rebuilding childList');
+            this.block.clear();
+            const children = this.el.children;
+            for(const child of children){
+              const childEntity = child as Entity;
+              if(!hasMeshUIComponent(childEntity)){
+                console.log('found child that isnt a mesh-ui component. Adding the entity\'s object3D to this components block');
+                this.block.add(childEntity.object3D);
+              } else {
+                whenComponentInitedAddToMeshUiBlock(childEntity, this.block);
+              }
+            }
           }
+          rebuildChildren();
+
           
         // })
       },
@@ -155,7 +190,6 @@
       fontOpacity: { type: 'number', default: 1},
       // fontSuperSampling,
     }
-    const MESH_TEXT_NAME = 'mesh-ui-text';
     AFRAME.registerComponent(MESH_TEXT_NAME, {
       schema: {
         ...textLayoutSchema,
@@ -177,7 +211,7 @@
         //   meshComponent.block.add(this.block);
         // }
         if(parent.components[MESH_BLOCK_NAME]){
-          whenComponentInitedTryAttachToMeshUiBlock(parent, this.block);
+          // whenComponentInitedAttachToMeshUiBlock(parent, this.block);
         } 
 
         // this.el.addEventListener('loaded', () => {
@@ -218,14 +252,14 @@
     return entity.components["mesh-ui-block"] || entity.components["mesh-ui-text"];
   }
   
-  // function getMeshUIComponent(entity: Entity){
-  //   // console.log('Checking if entity has mesh components');
-  //   // console.log(entity.components);
-  //   const meshblock = entity.components["mesh-ui-block"];
-	// 	const meshtext = entity.components["mesh-ui-text"];
-  //   if(meshblock && meshtext) console.warn('an entity should only have either a mesh-ui-block or mesh-ui-text');
-  //   else if(!meshblock && !meshblock) return false;
-  //   // console.log(meshblock);
-  //   // console.log(meshtext);
-  //   return meshblock ? meshblock : meshtext;
-  // }
+  function getMeshUIComponent(entity: Entity){
+    // console.log('Checking if entity has mesh components');
+    // console.log(entity.components);
+    const meshblock = entity.components[MESH_BLOCK_NAME];
+		const meshtext = entity.components[MESH_TEXT_NAME];
+    if(meshblock && meshtext) console.warn('an entity should only have either a mesh-ui-block or mesh-ui-text');
+    // else if(!meshblock && !meshblock) return undefined;
+    // console.log(meshblock);
+    // console.log(meshtext);
+    return meshblock ? meshblock : meshtext;
+  }
