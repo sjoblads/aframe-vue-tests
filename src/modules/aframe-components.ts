@@ -1,12 +1,12 @@
 // import meshUi from "./aframe-components/mesh-ui";
-import * as THREE from 'three';
+// import * as THREE from 'three';
 
 // Polyfill Three's rename of Math->MathUtils after the super-three fork
-(function(ThreedleDum) {
-  if (!ThreedleDum.MathUtils) {
-    ThreedleDum.MathUtils = ThreedleDum.Math
-  }
-})(THREE)
+// (function(ThreedleDum) {
+//   if (!ThreedleDum.MathUtils) {
+//     ThreedleDum.MathUtils = ThreedleDum.Math
+//   }
+// })(THREE)
 
 let componentsRegistered = false;
 export default async function registerComponents() {
