@@ -22,7 +22,9 @@
   }
 
   function onClick(evt: Event){
+
     console.log('thing clicked:', evt);
+    evt.target.emit('setState', 'clicked');
   }
 
 </script>
@@ -63,7 +65,7 @@
               <a-torus-knot position="1.3 1 0" scale=".2 .2 .2" class="clickable" @click="onClick" />
               <!-- <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" /> -->
             </a-entity>
-            <a-entity class="clickable" @click="onClick" mesh-ui-block="width: 0.4; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
+            <a-entity class="clickable" @click="$el.emit('setState', 'clicked')" mesh-ui-block-state__clicked="backgroundeOpacity: 0.8;" mesh-ui-block="width: 0.4; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
               <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity>
             </a-entity>
           </a-entity>

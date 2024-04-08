@@ -5,6 +5,8 @@ import type { Component, Entity, THREE, } from 'aframe';
 
 const MESH_BLOCK_NAME = 'mesh-ui-block';
 const MESH_TEXT_NAME = 'mesh-ui-text';
+const MESH_BLOCK_STATE_NAME = 'mesh-ui-block-state';
+const MESH_TEXT_STATE_NAME = 'mesh-ui-text-state';
 export default function () {
   const blockLayoutSchema = {
     width: { type: "number", default: 1 },
@@ -51,6 +53,17 @@ export default function () {
       })
     }
   }
+  
+  function parseBlockOptions(data: Record<string, unknown>) {
+      return {
+        ...data,
+        backgroundColor: new THREE.Color(data.backgroundColor),
+        borderRadius: data.borderRadius.length > 1 ? data.borderRadius : data.borderRadius[0],
+        borderColor: new THREE.Color(data.borderColor),
+        fontFamily: data.fontFamily === '' ? fontFamilyUrl : data.fontFamily,
+        fontTexture: data.fontTexture === '' ? fontTextureUrl : data.fontTexture,
+      }
+  }
 
   AFRAME.registerComponent(MESH_BLOCK_NAME, {
     schema: {
@@ -61,7 +74,7 @@ export default function () {
     block: undefined as unknown as Block,
     init: function () {
       // console.log('INIT MESH BLOCK');
-      this.block = new ThreeMeshUI.Block(this.calculateOptionsObject())
+      this.block = new ThreeMeshUI.Block(parseBlockOptions(this.data))
       // @ts-ignore
       this.block['name'] = 'mesh-ui-block';
       this.block['el'] = this.el;
@@ -113,17 +126,7 @@ export default function () {
     },
     update: function () {
       if (!this.block) return;
-      this.block.set(this.calculateOptionsObject());
-    },
-    calculateOptionsObject() {
-      return {
-        ...this.data,
-        backgroundColor: new THREE.Color(this.data.backgroundColor),
-        borderRadius: this.data.borderRadius.length > 1 ? this.data.borderRadius : this.data.borderRadius[0],
-        borderColor: new THREE.Color(this.data.borderColor),
-        fontFamily: this.data.fontFamily === '' ? fontFamilyUrl : this.data.fontFamily,
-        fontTexture: this.data.fontTexture === '' ? fontTextureUrl : this.data.fontTexture,
-      }
+      this.block.set(parseBlockOptions(this.data));
     },
     tick(_time, _timeDelta) {
       if (this.isUiRoot) {
@@ -151,6 +154,41 @@ export default function () {
     fontOpacity: { type: 'number', default: 1 },
     // fontSuperSampling,
   }
+
+  AFRAME.registerComponent(MESH_BLOCK_STATE_NAME, {
+    dependencies: [MESH_BLOCK_NAME],
+    multiple: true,
+    schema: {
+      ...blockLayoutSchema,
+      ...blockStyleSchema,
+    },
+    block: undefined as undefined | Block,
+    events: {
+      setState(evt) {
+        console.log('setState event!', evt);
+        this.block.setState(evt.detail);
+      }
+    },
+    init() {
+      console.log("BLOCK STATE INIT");
+      const meshComponent = this.el.components[MESH_BLOCK_NAME];
+      console.log(meshComponent);
+      this.block = meshComponent.block;
+      if(!this.block) {
+        console.error('no block on entity->component');
+        return;
+      }
+      const options = parseBlockOptions(this.data);
+      this.block.setupState({state: this.id, attributes: options});
+
+    },
+    update(oldData) {
+      if (!this.block) return;
+      const options = parseBlockOptions(this.data);
+      this.block.setupState({state: this.id, attributes: options});
+    },
+  })
+
   AFRAME.registerComponent(MESH_TEXT_NAME, {
     schema: {
       ...textLayoutSchema,
@@ -180,49 +218,45 @@ export default function () {
   })
 
   const globalRaycasterComponent = AFRAME.components['raycaster'].Component;
-  // globalRaycasterComponent.prototype['test'] = function () {
-  //   console.log('hello from patched raycaster');
-  //   console.log(this);
-  // };
   globalRaycasterComponent.prototype['checkIntersections'] = patchedCheckIntersection;
   globalRaycasterComponent.prototype['flattenObject3DMaps'] = patchedFlattenObject3DMaps;
 
 
-  AFRAME.registerComponent('raycast-me', {
-    dependencies: [MESH_BLOCK_NAME],
-    raycaster: undefined as THREE.Raycaster | undefined,
-    rayCasterComponent: undefined as undefined | Component<{ raycaster: THREE.Raycaster }, any>,
-    uiFrameMesh: undefined as undefined | Block,
-    init() {
-      console.log('RAYCAST ME INIT');
-      this.el.sceneEl!.addEventListener('componentinitialized', (evt: CustomEvent) => {
-        // console.log(evt.detail);
-        if (evt.detail.name === 'raycaster') {
-          this.rayCasterComponent = this.el.sceneEl?.components['raycaster'];
-          this.raycaster = this.rayCasterComponent.raycaster as THREE.Raycaster
-          // console.log(this.raycaster);
-          // this.rayCasterComponent.test();
-        }
-      })
-      this.uiFrameMesh = this.el.components[MESH_BLOCK_NAME].block.children[0];
-      // console.log(this.uiFrameMesh);
-      this.tock = AFRAME.utils.throttleTick(this.tock, 200, this);
+  // AFRAME.registerComponent('raycast-me', {
+  //   dependencies: [MESH_BLOCK_NAME],
+  //   raycaster: undefined as THREE.Raycaster | undefined,
+  //   rayCasterComponent: undefined as undefined | Component<{ raycaster: THREE.Raycaster }, any>,
+  //   uiFrameMesh: undefined as undefined | Block,
+  //   init() {
+  //     console.log('RAYCAST ME INIT');
+  //     this.el.sceneEl!.addEventListener('componentinitialized', (evt: CustomEvent) => {
+  //       // console.log(evt.detail);
+  //       if (evt.detail.name === 'raycaster') {
+  //         this.rayCasterComponent = this.el.sceneEl?.components['raycaster'];
+  //         this.raycaster = this.rayCasterComponent.raycaster as THREE.Raycaster
+  //         // console.log(this.raycaster);
+  //         // this.rayCasterComponent.test();
+  //       }
+  //     })
+  //     this.uiFrameMesh = this.el.components[MESH_BLOCK_NAME].block.children[0];
+  //     // console.log(this.uiFrameMesh);
+  //     this.tock = AFRAME.utils.throttleTick(this.tock, 200, this);
 
-      console.log(globalRaycasterComponent);
-    },
-    tock(time, timeDelta, camera) {
-      if (!this.raycaster || !this.uiFrameMesh) {
-        console.error('no raycaster or block available');
-        return;
-      }
-      const intersections = this.raycaster.intersectObject(this.uiFrameMesh, false);
-      if (intersections.length) {
-        console.log(intersections);
-        // this.rayCasterComponent.intersectedEls.
-      }
-    },
+  //     console.log(globalRaycasterComponent);
+  //   },
+  //   tock(time, timeDelta, camera) {
+  //     if (!this.raycaster || !this.uiFrameMesh) {
+  //       console.error('no raycaster or block available');
+  //       return;
+  //     }
+  //     const intersections = this.raycaster.intersectObject(this.uiFrameMesh, false);
+  //     if (intersections.length) {
+  //       console.log(intersections);
+  //       // this.rayCasterComponent.intersectedEls.
+  //     }
+  //   },
 
-  })
+  // })
 }
 
 
@@ -325,7 +359,7 @@ function patchedCheckIntersection() {
     this.intersectionDetail.els = newIntersectedEls;
     this.intersectionDetail.intersections = newIntersections;
     el.emit(EVENTS.INTERSECTION, this.intersectionDetail);
-    console.log('INTERSECTION HELLO FROM PATCHED RAYCASTER');
+    // console.log('INTERSECTION HELLO FROM PATCHED RAYCASTER');
   }
 
   // Emit event when the closest intersected entity has changed.
