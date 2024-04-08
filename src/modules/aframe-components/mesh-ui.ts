@@ -60,7 +60,7 @@
       isUiRoot: false,
       block: undefined as unknown as Block,
       init: function () {
-        // console.log('INIT MESH BLOCK');
+        console.log('INIT MESH BLOCK');
         this.block = new ThreeMeshUI.Block(this.calculateOptionsObject())
         // @ts-ignore
         this.block['name'] = 'mesh-ui-block';

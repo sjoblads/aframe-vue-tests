@@ -11,9 +11,6 @@ dependencies:
   aframe-atlas-uvs-component:
     specifier: ^3.0.0
     version: 3.0.0
-  aframe-mesh-ui-components:
-    specifier: ^0.5.1
-    version: 0.5.1(three@0.158.0)
   aframe-troika-text:
     specifier: ^0.11.0
     version: 0.11.0(aframe@1.5.0)(three@0.158.0)
@@ -23,6 +20,9 @@ dependencies:
   three:
     specifier: 0.158.0
     version: 0.158.0
+  three-mesh-ui:
+    specifier: ^6.5.4
+    version: 6.5.4(three@0.158.0)
   troika-three-text:
     specifier: ^0.49.0
     version: 0.49.0(three@0.158.0)
@@ -1336,14 +1336,6 @@ packages:
 
   /aframe-atlas-uvs-component@3.0.0:
     resolution: {integrity: sha512-zoGFRsPTyXjq9hmEkJ/QiC/Pr9FmQxBm93Td2j7BE0yZ05H3z9KZwLm/gweRKPDYfc6PdV5SVtpYdBnRfjhH2A==}
-    dev: false
-
-  /aframe-mesh-ui-components@0.5.1(three@0.158.0):
-    resolution: {integrity: sha512-BnaexZDT7u3duk3zrdHKc53Li2mC1TsxwGwRw0zfGEh8Ow+vXi+OLv1pVLtWNNANOj2BgQyXeiGVhV4OQL4wvQ==}
-    dependencies:
-      three-mesh-ui: 6.5.4(three@0.158.0)
-    transitivePeerDependencies:
-      - three
     dev: false
 
   /aframe-troika-text@0.11.0(aframe@1.5.0)(three@0.158.0):

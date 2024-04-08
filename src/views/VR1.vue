@@ -4,7 +4,6 @@
   import 'aframe-troika-text';
   const assetsLoaded = ref(false);
   
-  // import 'aframe-mesh-ui-components' ;
   import registerAframeComponents from '@/modules/aframe-components';
   onBeforeMount(async () => {
     await registerAframeComponents();
