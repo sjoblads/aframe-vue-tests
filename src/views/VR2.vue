@@ -30,7 +30,7 @@
 
         <a-entity position="0 1.5 -1.6">
           <!-- <a-entity troika-test /> -->
-          <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" />
+          <a-troika-text position="0 0 0" depth-offset="-100" value="help" font-size="0.1" font="#icon-font" />
           <a-link scale="0.3 .3 .3" class="clickable" position="-1.5 0 0" href="/vr1" title="Other page" />
           <!-- <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" /> -->
         </a-entity>

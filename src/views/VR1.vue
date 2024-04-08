@@ -21,6 +21,10 @@
     console.log('ROOT ENTITY LOADED');
   }
 
+  function onClick(evt: Event){
+    console.log('thing clicked:', evt);
+  }
+
 </script>
 
 <template>
@@ -32,7 +36,9 @@
       <a-mixin id="emojimap" atlas-uvs="totalRows: 43; totalColumns: 43" :material="`src: ${emojiSheetUrl}; transparent: true; shader: flat;`" geometry="primitive: plane; width: 0.4; height: 0.4; buffer: true; skipCache: true" />
 
       <a-entity @loaded="onRootLoaded">
-        <a-camera wasd-controls="acceleration: 5;">
+        <a-camera wasd-controls="acceleration: 15;">
+          <a-entity position="0.2 0 -1">
+          </a-entity>
         </a-camera>
         <!-- <a-background color="skyblue"></a-background> -->
         <a-gltf-model src="#sponza" />
@@ -51,16 +57,17 @@
           <a-link scale="0.3 .3 .3" class="clickable" position="-1.5 0 0" href="/vr2" title="Other page" >
             <!-- <a-troika-text value="other page" /> -->
           </a-link>
-          <!-- <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" /> -->
-          <a-entity mesh-ui-block="contentDirection: row; justifyContent: space-evenly" >
+          <a-entity mesh-ui-block="contentDirection: row; justifyContent: space-evenly" class="">
             <a-entity mesh-ui-block="width: 0.2; height: 0.3; offset: 0.05;" >
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
-              <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" />
+              <a-torus-knot position="1.3 1 0" scale=".2 .2 .2" class="clickable" @click="onClick" />
+              <!-- <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" /> -->
             </a-entity>
-            <a-entity mesh-ui-block="width: 0.4; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
+            <a-entity class="clickable" @click="onClick" mesh-ui-block="width: 0.4; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
               <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity>
             </a-entity>
           </a-entity>
+          <!-- <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" /> -->
         </a-entity>
       </a-entity>
     </a-scene>
