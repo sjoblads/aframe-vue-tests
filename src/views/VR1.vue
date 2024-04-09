@@ -60,20 +60,20 @@
             <!-- <a-troika-text value="other page" /> -->
           </a-link>
           <a-entity mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03; padding: 0.01" class="">
-            <a-entity mesh-ui-block="width: 0.2; height: 0.4" >
-              <!-- <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity> -->
+            <a-entity mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01" >
+              <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
               <!-- <a-torus-knot position="1.3 1 0" scale=".2 .2 .2" class="clickable" @click="onClick" @hover="onClick" /> -->
-              <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" />
+              <!-- <a-troika-text color="red" position="0 0 0" depth-offset="-100" value="phone" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" /> -->
             </a-entity>
             <a-entity 
               class="clickable"
               @mouseleave="$event.target.emit('setState', 'default')"
               @mouseenter="$event.target.emit('setState', 'hover')"
-              mesh-ui-block="width: 0.2; height: 0.4;"
-              mesh-ui-block-state__hover="backgroundOpacity: 0.8;"
+              mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
+              mesh-ui-block-state__hover="backgroundColor: #888;"
             >
-              <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" />
-              <!-- <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity> -->
+              <a-troika-text color="#0ff" position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" />
+              <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity>
             </a-entity>
           </a-entity>
           <!-- <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" /> -->
