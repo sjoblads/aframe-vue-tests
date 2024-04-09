@@ -1,15 +1,7 @@
 <script setup lang="ts">
-  import { onBeforeMount, ref } from 'vue';
-  import 'aframe'
-  import 'aframe-troika-text';
+  import { ref } from 'vue';
   const assetsLoaded = ref(false);
   
-  import registerAframeComponents from '@/modules/aframe-components';
-  onBeforeMount(async () => {
-    await registerAframeComponents();
-  })
-
-
   import emojiSheetUrl from '@/assets/sprite-128.png';
   import sponzaUrl from '@/assets/sponza.glb?url'
   
@@ -24,7 +16,7 @@
   function onClick(evt: Event){
 
     console.log('thing clicked:', evt);
-    evt.target.emit('setState', 'clicked');
+    // evt.target.emit('setState', 'clicked');
   }
 
 </script>

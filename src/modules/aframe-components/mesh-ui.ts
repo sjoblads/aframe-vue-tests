@@ -1,13 +1,14 @@
 import fontFamilyUrl from '@/assets/Roboto-msdf.json?url'
 import fontTextureUrl from '@/assets/Roboto-msdf.png'
-import ThreeMeshUI, { type Block } from 'three-mesh-ui';
+import type { Block } from 'three-mesh-ui';
 import type { Component, Entity, THREE, } from 'aframe';
 
 const MESH_BLOCK_NAME = 'mesh-ui-block';
 const MESH_TEXT_NAME = 'mesh-ui-text';
 const MESH_BLOCK_STATE_NAME = 'mesh-ui-block-state';
 const MESH_TEXT_STATE_NAME = 'mesh-ui-text-state';
-export default function () {
+export default async function () {
+  const {default: ThreeMeshUI} = await import('three-mesh-ui');
   const blockLayoutSchema = {
     width: { type: "number", default: 1 },
     height: { type: "number", default: 0.6 },
