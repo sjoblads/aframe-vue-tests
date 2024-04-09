@@ -1,16 +1,21 @@
 <script setup lang="ts">
   import { ref } from 'vue';
-  const assetsLoaded = ref(false);
-  
+  import type { Entity } from 'aframe';
+
   import emojiSheetUrl from '@/assets/sprite-128.png';
   import sponzaUrl from '@/assets/sponza.glb?url'
+
+  const assetsLoaded = ref(false);
+
+  const sceneTag = ref<Entity>()
+  
   
   function onAssetsLoaded() {
     assetsLoaded.value = true;
-    console.log('ASSETS LOADED');
+    // console.log('ASSETS LOADED');
   }
   function onRootLoaded() {
-    console.log('ROOT ENTITY LOADED');
+    // console.log('ROOT ENTITY LOADED');
   }
 
   function onClick(evt: Event){
@@ -19,11 +24,17 @@
     // evt.target.emit('setState', 'clicked');
   }
 
+  function getScreen(){
+    const screen = sceneTag.value?.components.screenshot.capture('equirectangular');    
+    console.log(screen);
+  }
+
 </script>
 
 <template>
-    <a-scene renderer="physicallyCorrectLights: true;" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable"  xr-mode-ui="enabled: true;">
+    <a-scene ref="sceneTag" screenshot="width: 2000; height: 1000" renderer="physicallyCorrectLights: true;" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable"  xr-mode-ui="enabled: true;">
       <a-assets @loaded="onAssetsLoaded">
+        <img id="portal-preview" src="@/assets/portal-screenshot.png" >
         <a-asset-item id="sponza" :src="sponzaUrl" />
         <a-asset-item id="icon-font" src="https://fonts.gstatic.com/s/materialicons/v70/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.woff" />
       </a-assets>
@@ -48,9 +59,10 @@
           <a-light type="point" color="blue" position="-3.5 0 -1" intensity="2" decay="1">
             <a-sphere color="blue" scale="0.1 0.1 .1" />
           </a-light>
-          <a-link scale="0.3 .3 .3" class="clickable" position="-1.5 0 0" href="/vr2" title="Other page" >
-            <!-- <a-troika-text value="other page" /> -->
+          <a-sphere rotation="90 180 0" position="2 0 0" detail="3" scale=".5 .5 .5" material="shader: pano-portal; src: #portal-preview;" />
+          <a-link image="#portal-preview" scale="" class="clickable" position="-3 0 1" href="/vr2" title="Other page" >
           </a-link>
+          <a-entity link="href: /vr2; title: liiink; image: #portal-preview; borderColor: #0ff; visualAspectEnabled: true;" position="0 0 0" />
           <a-entity mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03;" class="">
             <a-entity mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; justifyContent: space-evenly;" >
               <a-entity mesh-ui-block="width: 0.1; height: 0.1; backgroundColor: #0ff; bestFit: auto">
@@ -66,6 +78,7 @@
               class="clickable"
               @mouseleave="$event.target.emit('setState', 'default')"
               @mouseenter="$event.target.emit('setState', 'hover')"
+              @click="getScreen"
               mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
               mesh-ui-block-state__hover="backgroundColor: #888;"
             >

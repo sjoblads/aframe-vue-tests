@@ -1,6 +1,8 @@
 import meshUi from "./aframe-components/mesh-ui";
 import 'aframe'
 import 'aframe-troika-text'
+// import 'https://github.com/PyryM/aframe-pano-portal/raw/master/dist/aframe-pano-portal.min.js'
+import './aframe-pano-portal';
 
 let componentsRegistered = false;
 export default async function registerComponents() {
