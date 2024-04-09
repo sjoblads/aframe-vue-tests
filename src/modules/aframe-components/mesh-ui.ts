@@ -85,7 +85,8 @@ export default function () {
     block: undefined as unknown as Block,
     init: function () {
       // console.log('INIT MESH BLOCK');
-      this.block = new ThreeMeshUI.Block(parseBlockOptions(this.data))
+      const receivedOptions = removeUnsetProperties(parseBlockOptions(this.data) , this.attrValue);
+      this.block = new ThreeMeshUI.Block(receivedOptions);
       // @ts-ignore
       this.block['name'] = 'mesh-ui-block';
       this.block['el'] = this.el;
@@ -137,7 +138,16 @@ export default function () {
     },
     update: function () {
       if (!this.block) return;
-      this.block.set(parseBlockOptions(this.data));
+      const receivedOptions = removeUnsetProperties(parseBlockOptions(this.data), this.attrValue);
+      if(this.isUiRoot){
+        if(!('fontFamily' in receivedOptions)){
+          receivedOptions.fontFamily = fontFamilyUrl;
+          receivedOptions.fontTexture = fontTextureUrl;
+          // this.block.set({fontFamily: fontFamilyUrl, fontTexture: fontTextureUrl});
+        }
+      }
+      this.block.setupState({state:'default', attributes: receivedOptions});
+      this.block.set(receivedOptions);
     },
     tick(_time, _timeDelta) {
       if (this.isUiRoot) {

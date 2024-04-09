@@ -62,10 +62,10 @@
           <a-entity mesh-ui-block="contentDirection: row; justifyContent: space-evenly" class="">
             <a-entity mesh-ui-block="width: 0.2; height: 0.3; offset: 0.05;" >
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
-              <a-torus-knot position="1.3 1 0" scale=".2 .2 .2" class="clickable" @click="onClick" />
+              <!-- <a-torus-knot position="1.3 1 0" scale=".2 .2 .2" class="clickable" @click="onClick" @hover="onClick" /> -->
               <!-- <a-troika-text position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1" font="#icon-font" class="clickable" @click="onClick" /> -->
             </a-entity>
-            <a-entity class="clickable" @click="$event.target.emit('setState', 'clicked')" mesh-ui-block-state__clicked="backgroundOpacity: 0.8;" mesh-ui-block="offset: 0.10; backgroundOpacity: 0.3;" >
+            <a-entity class="clickable" @mouseleave="$event.target.emit('setState', 'default')" @mouseenter="$event.target.emit('setState', 'hover')" mesh-ui-block-state__hover="backgroundOpacity: 0.8;" mesh-ui-block="width: 0.2; height: 0.4; offset: 0.10; backgroundOpacity: 0.3;" >
               <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena hur ääär läääget!"></a-entity>
             </a-entity>
           </a-entity>
