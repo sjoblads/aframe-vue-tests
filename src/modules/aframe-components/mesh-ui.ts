@@ -64,6 +64,17 @@ export default function () {
         fontTexture: data.fontTexture === '' ? fontTextureUrl : data.fontTexture,
       }
   }
+  
+  function removeUnsetProperties(data: Record<string, unknown>, attrValue: Record<string, unknown>) {
+    // console.log(data);
+    // console.log(attrValue);
+    const attrCopy = Object.assign({}, attrValue);
+    for(const key in attrCopy){
+      attrCopy[key] = data[key];
+    }
+    // console.log(attrCopy);
+    return attrCopy;
+  }
 
   AFRAME.registerComponent(MESH_BLOCK_NAME, {
     schema: {
@@ -171,21 +182,26 @@ export default function () {
     },
     init() {
       console.log("BLOCK STATE INIT");
+      console.log(this);
+      console.log('init data:');
       const meshComponent = this.el.components[MESH_BLOCK_NAME];
-      console.log(meshComponent);
       this.block = meshComponent.block;
       if(!this.block) {
         console.error('no block on entity->component');
         return;
       }
-      const options = parseBlockOptions(this.data);
-      this.block.setupState({state: this.id, attributes: options});
+
+      // const allOptions = parseBlockOptions(this.data);
+      // const pickedOptions = removeUnsetProperties(allOptions, this.attrValue);
+      // this.block.setupState({state: this.id, attributes: pickedOptions});
 
     },
     update(oldData) {
       if (!this.block) return;
-      const options = parseBlockOptions(this.data);
-      this.block.setupState({state: this.id, attributes: options});
+      const allOptions = parseBlockOptions(this.data);
+      const pickedOptions = removeUnsetProperties(allOptions, this.attrValue);
+      // console.log(pickedOptions);
+      this.block.setupState({state: this.id, attributes: pickedOptions});
     },
   })
 
@@ -196,7 +212,8 @@ export default function () {
     },
     block: undefined as unknown as Block,
     init: function () {
-      console.log('INIT MESH Text');
+      // console.log('INIT MESH Text');
+      // console.log(this);
       this.block = new ThreeMeshUI.Text(this.calculateOptionsObject())
       this.block['name'] = MESH_TEXT_NAME;
     },
