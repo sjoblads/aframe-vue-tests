@@ -176,14 +176,14 @@ export default function () {
     block: undefined as undefined | Block,
     events: {
       setState(evt) {
-        console.log('setState event!', evt);
+        // console.log('setState event!', evt);
         this.block.setState(evt.detail);
       }
     },
     init() {
       console.log("BLOCK STATE INIT");
-      console.log(this);
-      console.log('init data:');
+      // console.log(this);
+      // console.log('init data:');
       const meshComponent = this.el.components[MESH_BLOCK_NAME];
       this.block = meshComponent.block;
       if(!this.block) {
