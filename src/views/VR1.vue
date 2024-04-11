@@ -41,7 +41,7 @@ function navigateWithRouter() {
 <template>
   <a-scene ref="sceneTag" screenshot="width: 2000; height: 1000"
            light="defaultLightsEnabled: false;"
-           renderer="physicallyCorrectLights: true;" style="width: 100vw; height: 100vh;"
+           renderer="physicallyCorrectLights: true; toneMapping: reinhard;" style="width: 100vw; height: 100vh;"
            cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
     <a-assets @loaded="onAssetsLoaded">
       <img id="portal-preview" src="@/assets/portal-screenshot.png">
@@ -60,8 +60,8 @@ function navigateWithRouter() {
         </a-entity>
       </a-camera>
       <!-- <a-background color="skyblue"></a-background> -->
-      <!-- <a-gltf-model src="#sponza" /> -->
-      <a-gltf-model src="#lamp" />
+      <a-gltf-model shadow src="#sponza" />
+      <a-gltf-model gltf-shadow position="9 0 0" src="#lamp" />
       <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
       <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
@@ -71,9 +71,10 @@ function navigateWithRouter() {
         <!-- <a-light color="#fff" intensity="0.6" position="-0.5 1 1"></a-light> -->
 
         <!-- Blue point light, 5 meters in the air. -->
-        <a-light type="point" color="blue" position="-3.5 0 -1" intensity="5" decay="1">
+        <!-- <a-entity light="type: point; castShadow: true; color: red; intensity: 7;" position="-4 0 0"/> -->
+        <!-- <a-light shadow="cast: true;" type="point" color="blue" position="-3.5 0 -1" intensity="5" decay="1">
           <a-sphere color="blue" scale="0.1 0.1 .1" />
-        </a-light>
+        </a-light> -->
         <a-sphere rotation="90 180 0" position="2 0 0" detail="3" scale=".5 .5 .5"
                   material="shader: pano-portal; src: #portal-preview;" />
         <a-link image="#portal-preview" scale="" class="clickable" position="-3 0 1" href="/vr2" title="Other page">
