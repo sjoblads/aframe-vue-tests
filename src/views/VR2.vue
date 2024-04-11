@@ -9,7 +9,12 @@
 </script>
 
 <template>
-    <a-scene style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable"  xr-mode-ui="enabled: true;">
+    <a-scene style="width: 100vw; height: 100vh;" 
+      light="defaultLightsEnabled: false;"
+      cursor="fuse:false; rayOrigin:mouse;"
+      raycaster="objects: .clickable" 
+      xr-mode-ui="enabled: true;"
+    >
       <a-assets @loaded="assetsLoaded = true">
         <a-asset-item id="sponza" :src="sponzaUrl" />
         <a-asset-item id="icon-font" src="https://fonts.gstatic.com/s/materialicons/v70/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.woff" />
