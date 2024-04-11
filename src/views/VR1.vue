@@ -51,12 +51,12 @@
         <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
         <a-entity position="0 1.5 -1.6">
-          <a-light type="ambient" color="#BBB"></a-light>
+          <!-- <a-light type="ambient" color="#BBB"></a-light> -->
           <!-- Red directional light shining from the top left. -->
-          <a-light color="#fff" intensity="0.6" position="-0.5 1 1"></a-light>
+          <!-- <a-light color="#fff" intensity="0.6" position="-0.5 1 1"></a-light> -->
 
           <!-- Blue point light, 5 meters in the air. -->
-          <a-light type="point" color="blue" position="-3.5 0 -1" intensity="2" decay="1">
+          <a-light type="point" color="blue" position="-3.5 0 -1" intensity="5" decay="1">
             <a-sphere color="blue" scale="0.1 0.1 .1" />
           </a-light>
           <a-sphere rotation="90 180 0" position="2 0 0" detail="3" scale=".5 .5 .5" material="shader: pano-portal; src: #portal-preview;" />
