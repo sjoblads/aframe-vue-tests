@@ -6,6 +6,7 @@ export default () => {
     schema: {
       colors: {type: 'array'},
     },
+    nrOfCustomColors: 0,
     // threeColor: undefined as undefined | THREE.Color,
     init: function () {
       console.log(this.el);
@@ -40,7 +41,7 @@ export default () => {
       //     console.log('applying color to', node);
       //     // node.material.color = colors[0];
       // })
-      mesh.traverse(function (node) {
+      mesh.traverse((node) => {
           // console.log('node:', node.name, node.id, node.type);
           // console.log('children:', node.children);
           // console.log('userData:', node.userData);
@@ -55,6 +56,10 @@ export default () => {
           const keyword = 'color'
           if(material.name.startsWith(keyword)){
             const digit = Number.parseInt(material.name.substring(keyword.length));
+            if(digit > this.nrOfCustomColors) {
+              this.nrOfCustomColors = digit;
+              console.log('nrOfCustomColors:', this.nrOfCustomColors);
+            }
             if('color' in material && colors[digit-1]){
               console.log('setting color!');
               material.color = colors[digit-1];
