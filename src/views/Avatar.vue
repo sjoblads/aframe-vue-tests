@@ -26,19 +26,18 @@ const pickedColors = reactive({
 </script>
 
 <template>
-  <div style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;" >
-    <template v-for="(color, key) in pickedColors" :key="key" >
+  <div style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
+    <template v-for="(color, key) in pickedColors" :key="key">
 
-      <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color" >
+      <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color">
     </template>
   </div>
-  <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;"
-           cursor="fuse:false; rayOrigin:mouse;"
-           raycaster="objects: .clickable"
-           xr-mode-ui="enabled: true;">
+  <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
+    raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
     <a-assets @loaded="assetsLoaded = true" timeout="25000">
       <template v-once v-for="(fileNames, prop) in avatarAssets" :key="prop">
-        <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName" :src="`/avatar/${prop}/${fileName}.glb`" />
+        <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName"
+          :src="`/avatar/${prop}/${fileName}.glb`" />
       </template>
       <a-asset-item id="shirt-colorable" src="/custom-props/PoloShirt_colorable.glb" />
       <a-asset-item id="hair-colorable" src="/custom-props/PT_Colorable_HairTie.glb" />
@@ -67,7 +66,8 @@ const pickedColors = reactive({
       <a-gltf-model :model-color="`colors: ${pickedColors.color4}`" src="#jewelry-0" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${Object.values(pickedColors)};`" src="#hair-0" position="0 0 0" />
       <a-gltf-model src="#eyebrows-0" position="0 0 0" />
-      <a-gltf-model :model-color="`colors: ${pickedColors.color4}, ${pickedColors.color3}`" src="#eyes-1" position="0 0 0" />
+      <a-gltf-model :model-color="`colors: ${pickedColors.color4}, ${pickedColors.color3}`" src="#eyes-1"
+        position="0 0 0" />
       <a-gltf-model src="#mouths-1" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${pickedColors.color5}`" src="#clothes-0" position="0 0 0" />
       <a-gltf-model src="#hands-0" position="0 0 0" />
