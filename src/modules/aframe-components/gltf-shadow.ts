@@ -1,9 +1,3 @@
-//for A-Frame
-//使い方：<a-entity gltf-model="#glb" gltf_shadow  ></a-entity>
-// gltf でなければ　shadow="receive: true;cast: true;" とするところ。
-// しかしgltfでは無視されるのでgltf_shadowをしていして、以下のコンポーネントを適用させる
-//
-
 export default function() {
   AFRAME.registerComponent('gltf-shadow', {
     init: function () {
