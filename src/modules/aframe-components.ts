@@ -1,4 +1,4 @@
-// import meshUi from "./aframe-components/mesh-ui";
+import meshUi from "./aframe-components/mesh-ui";
 import 'aframe'
 import modelColor from './aframe-components/model-color';
 // import 'aframe-troika-text'
@@ -11,7 +11,7 @@ export default async function registerComponents() {
   if(componentsRegistered) return;
   // await import('aframe');
 
-  // meshUi();
+  meshUi();
   modelColor();
   // gltfShadow();
   // const troika = await import('./aframe-components/troika-text');

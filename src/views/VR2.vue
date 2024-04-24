@@ -50,13 +50,13 @@
         <a-camera wasd-controls="acceleration: 5;"/>
         <a-sky color="skyblue"></a-sky>
         <!-- <a-gltf-model src="#sponza" /> -->
-        <a-entity laser-controls="hand: left"></a-entity>
-        <a-entity laser-controls="hand: right"></a-entity>
+        <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
+        <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
         <a-entity position="0 1.5 -2.5">
           <!-- <a-entity troika-test /> -->
           <!-- <a-troika-text position="0 0 0" depth-offset="-100" value="help" font-size="0.1" font="#icon-font" /> -->
-          <a-link class="clickable" position="0 0 0" href="/vr1" title="Go to VR1" />
+          <!-- <a-link class="clickable" position="0 0 0" href="/vr1" title="Go to VR1" /> -->
           <a-sphere color="green" scale="0.4 .4 .4" class="clickable" @click="$router.push('vr1')" position="2 0 0"></a-sphere>
           <!-- <a-entity position="1.5 0 0" mixin="emojimap" material="opacity: 1;" atlas-uvs="column: 4; row: 4;" /> -->
         </a-entity>

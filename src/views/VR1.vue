@@ -10,6 +10,7 @@ const assetsLoaded = ref(false);
 
 const sceneTag = ref<Scene>()
 
+const currentColor = ref('#7700bb');
 
 function onAssetsLoaded() {
   assetsLoaded.value = true;
@@ -94,20 +95,20 @@ function getScreen() {
         </a-light> -->
         <!-- <a-sphere rotation="90 180 0" position="2 0 0" detail="3" scale=".5 .5 .5"
                   material="shader: pano-portal; src: #portal-preview;" /> -->
-        <a-link scale="" class="clickable" image="#portal-preview" position="0 0 0" href="/vr2" title="Go to VR2">
-        </a-link>
-        <a-sphere color="blue" scale="0.4 .4 .4" class="clickable" @click="$router.push('/vr2')" position="2 0 0"></a-sphere>
+        <!-- <a-link scale="" class="clickable" image="#portal-preview" position="0 0 0" href="/vr2" title="Go to VR2">
+        </a-link> -->
+        <a-sphere :color="currentColor" scale="0.4 .4 .4" class="clickable" @click="$router.push('/vr2')" position="2 0 0"></a-sphere>
         <!-- <a-entity link="href: /vr2; title: liiink; image: #portal-preview; borderColor: #0ff; visualAspectEnabled: true;"
                   position="0 0 0" /> -->
-        <!-- <a-entity mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03;"
+        <a-entity mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03;"
                   class="">
           <a-entity mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; justifyContent: space-evenly;">
             <a-entity mesh-ui-block="width: 0.1; height: 0.1; backgroundColor: #0ff; bestFit: auto">
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
             </a-entity>
             <a-entity mesh-ui-block="width: 0.1; height: 0.1; backgroundColor: #0ff; bestFit: auto">
-              <a-troika-text color="red" position="0 0 0" depth-offset="-100" value="phone" font-size="0.1"
-                             font="#icon-font" class="clickable" @click="onClick" />
+              <!-- <a-troika-text color="red" position="0 0 0" depth-offset="-100" value="phone" font-size="0.1"
+                             font="#icon-font" class="clickable" @click="onClick" /> -->
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
             </a-entity>
           </a-entity>
@@ -115,14 +116,12 @@ function getScreen() {
                     class="clickable"
                     @mouseleave="$event.target.emit('setState', 'default')"
                     @mouseenter="$event.target.emit('setState', 'hover')"
-                    @click="navigateWithRouter"
+                    @click="currentColor = `#${Math.trunc(Math.random()*255).toString(16)}00ff`"
                     mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
                     mesh-ui-block-state__hover="backgroundColor: #888;">
-            <a-troika-text color="#0ff" position="0 0 0" depth-offset="-100" value="whatshot" font-size="0.1"
-                           font="#icon-font" class="clickable" @click="onClick" />
             <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena! lääget!"></a-entity>
           </a-entity>
-        </a-entity> -->
+        </a-entity>
       </a-entity>
     </a-entity>
   </a-scene>
