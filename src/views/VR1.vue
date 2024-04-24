@@ -57,10 +57,9 @@ function getScreen() {
 </script>
 
 <template>
-  <a-scene ref="sceneTag" screenshot="width: 2000; height: 1000"
-           light="defaultLightsEnabled: false;"
-           style="width: 100vw; height: 100vh;"
-           cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
+  <a-scene ref="sceneTag" screenshot="width: 2000; height: 1000" light="defaultLightsEnabled: false;"
+    style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;" raycaster="objects: .clickable"
+    xr-mode-ui="enabled: true;">
     <a-assets @loaded="onAssetsLoaded" timeout="25000">
       <img id="portal-preview" src="@/assets/portal-screenshot.png">
       <!-- <a-asset-item id="sponza" :src="sponzaUrl" /> -->
@@ -81,20 +80,17 @@ function getScreen() {
       <!-- <a-gltf-model shadow src="#sponza" /> -->
       <!-- <a-gltf-model position="9 0 0" src="#lamp" /> -->
       <a-entity laser-controls="hand: left" raycaster="objects: .clickable">
-        <a-box position="0 0 -1" color="green" />
+        <a-entity position="0 0 -0.3" rotation="-90 0 0" class="clickable" @mouseleave="$event.target.emit('setState', 'default')"
+          @mouseenter="$event.target.emit('setState', 'hover')"
+          @click="currentColor = `#${Math.trunc(Math.random() * 255).toString(16)}00ff`"
+          mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
+          mesh-ui-block-state__hover="backgroundColor: #888;">
+          <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena! lääget!"></a-entity>
+        </a-entity>
       </a-entity>
       <a-entity laser-controls="hand: right" raycaster="objects: .clickable">
-        <a-box position="0 0 -1" />
-          <a-entity
-                    class="clickable"
-                    @mouseleave="$event.target.emit('setState', 'default')"
-                    @mouseenter="$event.target.emit('setState', 'hover')"
-                    @click="currentColor = `#${Math.trunc(Math.random()*255).toString(16)}00ff`"
-                    mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
-                    mesh-ui-block-state__hover="backgroundColor: #888;">
-            <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena! lääget!"></a-entity>
-          </a-entity>
-        </a-entity>
+        <!-- <a-box position="0 0 -1" /> -->
+      </a-entity>
       <a-entity position="0 1.5 -3">
         <!-- <a-light type="ambient" color="#BBB"></a-light> -->
         <!-- Red directional light shining from the top left. -->
@@ -109,11 +105,13 @@ function getScreen() {
                   material="shader: pano-portal; src: #portal-preview;" /> -->
         <!-- <a-link scale="" class="clickable" image="#portal-preview" position="0 0 0" href="/vr2" title="Go to VR2">
         </a-link> -->
-        <a-sphere :color="currentColor" scale="0.4 .4 .4" class="clickable" @click="$router.push('/vr2')" position="2 0 0"></a-sphere>
+        <a-sphere :color="currentColor" scale="0.4 .4 .4" class="clickable" @click="$router.push('/vr2')"
+          position="2 0 0"></a-sphere>
         <!-- <a-entity link="href: /vr2; title: liiink; image: #portal-preview; borderColor: #0ff; visualAspectEnabled: true;"
                   position="0 0 0" /> -->
-        <a-entity mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03;"
-                  class="">
+        <a-entity
+          mesh-ui-block="backgroundOpacity: 0.2; contentDirection: row; justifyContent: space-evenly; fontSize: 0.03;"
+          class="">
           <a-entity mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; justifyContent: space-evenly;">
             <a-entity mesh-ui-block="width: 0.1; height: 0.1; backgroundColor: #0ff; bestFit: auto">
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
