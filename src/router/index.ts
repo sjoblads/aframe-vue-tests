@@ -16,7 +16,12 @@ const router = createRouter({
       path: '/vr2',
       name: 'vr2',
       component: () => import('@/views/VR2.vue')
-    }
+    },
+    {
+      path: '/avatar',
+      name: 'avatar',
+      component: () => import('@/views/Avatar.vue')
+    },
   ]
 })
 

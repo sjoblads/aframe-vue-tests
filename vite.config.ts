@@ -5,14 +5,25 @@ import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import { viteExternalsPlugin } from 'vite-plugin-externals';
 
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  assetsInclude: ['**/*.glb'],
   plugins: [
     vue({
       template: {
         compilerOptions: {
           isCustomElement: (tag) => tag.startsWith('a-'),
-        }
+        },
+        transformAssetUrls: {
+          video: ['src', 'poster'],
+          source: ['src'],
+          img: ['src'],
+          image: ['xlink:href', 'href'],
+          use: ['xlink:href', 'href'],
+          'a-asset-item': ['src'],
+        },
       }
     }),
     VueDevTools(),
