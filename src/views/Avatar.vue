@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
+import modelColor from '@/modules/aframe-components/model-color';
 
 const avatarAssets = ref({
   hands: ['hands_basic_left', 'hands_basic_right'],
@@ -11,6 +12,7 @@ const avatarAssets = ref({
   hair: ['hair_ponytail', 'hair_thick_buzzcut'],
   mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
   clothes: ['clothes_poloshirt'],
+  jewelry: ['jewelry_pearl'],
 })
 const mouthFlipAssets = ref(['flip_a_e_i', 'flip_b_m_p', 'flip_c_d_n_s_t_x_y_z', 'flip_e', 'flip_f_v', 'flip_i_ch_sh', 'flip_l', 'flip_o', 'flip_r', 'flip_th', 'flip_u'])
 
@@ -63,6 +65,7 @@ const pickedColors = reactive({
 
       <a-gltf-model src="#torsos-0" position="0 0 0" />
       <a-gltf-model src="#heads-0" position="0 0 0" />
+      <a-gltf-model :model-color="`colors: ${pickedColors.color4}`" src="#jewelry-0" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${Object.values(pickedColors)};`" src="#hair-0" position="0 0 0" />
       <a-gltf-model src="#eyebrows-0" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${pickedColors.color4}, ${pickedColors.color3}`" src="#eyes-1" position="0 0 0" />
