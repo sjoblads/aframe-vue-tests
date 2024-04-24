@@ -80,9 +80,21 @@ function getScreen() {
       <a-sky color="skyblue"></a-sky>
       <!-- <a-gltf-model shadow src="#sponza" /> -->
       <!-- <a-gltf-model position="9 0 0" src="#lamp" /> -->
-      <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
-      <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
-
+      <a-entity laser-controls="hand: left" raycaster="objects: .clickable">
+        <a-box position="0 0 -1" color="green" />
+      </a-entity>
+      <a-entity laser-controls="hand: right" raycaster="objects: .clickable">
+        <a-box position="0 0 -1" />
+          <a-entity
+                    class="clickable"
+                    @mouseleave="$event.target.emit('setState', 'default')"
+                    @mouseenter="$event.target.emit('setState', 'hover')"
+                    @click="currentColor = `#${Math.trunc(Math.random()*255).toString(16)}00ff`"
+                    mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
+                    mesh-ui-block-state__hover="backgroundColor: #888;">
+            <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena! lääget!"></a-entity>
+          </a-entity>
+        </a-entity>
       <a-entity position="0 1.5 -3">
         <!-- <a-light type="ambient" color="#BBB"></a-light> -->
         <!-- Red directional light shining from the top left. -->
@@ -111,15 +123,6 @@ function getScreen() {
                              font="#icon-font" class="clickable" @click="onClick" /> -->
               <a-entity mesh-ui-text="content: Gunnar är bäst!;"></a-entity>
             </a-entity>
-          </a-entity>
-          <a-entity
-                    class="clickable"
-                    @mouseleave="$event.target.emit('setState', 'default')"
-                    @mouseenter="$event.target.emit('setState', 'hover')"
-                    @click="currentColor = `#${Math.trunc(Math.random()*255).toString(16)}00ff`"
-                    mesh-ui-block="width: 0.2; height: 0.4; margin: 0.01; backgroundColor: #000"
-                    mesh-ui-block-state__hover="backgroundColor: #888;">
-            <a-entity mesh-ui-text="fontColor: #0ff; content: Tjena! lääget!"></a-entity>
           </a-entity>
         </a-entity>
       </a-entity>
