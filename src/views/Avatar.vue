@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
-import modelColor from '@/modules/aframe-components/model-color';
 
 const avatarAssets = ref({
   hands: ['hands_basic_left', 'hands_basic_right'],
