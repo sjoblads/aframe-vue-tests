@@ -1,4 +1,5 @@
 import meshUi from "./aframe-components/mesh-ui";
+import makeGltfSwappable from "./aframe-components/make-gltf-swappable";
 import 'aframe'
 import modelColor from './aframe-components/model-color';
 // import 'aframe-troika-text'
@@ -13,6 +14,7 @@ export default async function registerComponents() {
 
   meshUi();
   modelColor();
+  makeGltfSwappable();
   // gltfShadow();
   // const troika = await import('./aframe-components/troika-text');
   // troika.default();
