@@ -13,35 +13,47 @@ onMounted(() => {
   audioTag.value
   const source = audioCtx.createMediaElementSource(audioTag.value);
 
-  const analyser = Meyda.createMeydaAnalyzer({
-    audioContext: audioCtx,
-    source,
-    numberOfMFCCCoefficients: nrOfBands,
-    bufferSize: 2048,
-    featureExtractors: ['mfcc'],
-    callback: (features) => {
-      for (let i = 0; i < features.mfcc.length; i++) {
-        mfccCoffs[i] = features.mfcc[i];
-      };
-      console.log(features);
-    }
-  })
+  const analyser = audioCtx.createAnalyser()
+  source.connect(analyser);
+  analyser.fftSize = 2048;
+  analyser.connect(audioCtx.destination);
 
-  analyser.start();
+  const fftData = new Float32Array(analyser.frequencyBinCount)
+  setInterval(() => {
+    analyser.getFloatFrequencyData(fftData);
+    console.log(fftData);
 
-  source.connect(audioCtx.destination);
+  }, 100)
+
+
+
+  // const analyser = Meyda.createMeydaAnalyzer({
+  //   audioContext: audioCtx,
+  //   source,
+  //   numberOfMFCCCoefficients: nrOfBands,
+  //   bufferSize: 2048,
+  //   featureExtractors: ['mfcc'],
+  //   callback: (features) => {
+  //     for (let i = 0; i < features.mfcc.length; i++) {
+  //       mfccCoffs[i] = features.mfcc[i];
+  //     };
+  //     console.log(features);
+  //   }
+  // })
+
+  // analyser.start();
+
+  // source.connect(audioCtx.destination);
 })
 
 </script>
 <template>
 
   <audio ref="audioTag" controls loop crossorigin="anonymous" id="audio" src="/audio/speech-test.mp3"></audio>
-  <div v-for="coff in mfccCoffs">
-    <p>
-      <!-- {{ coff }} -->
-      <template v-if="coff > 0">
-        <template v-for="n in Math.trunc(coff * 5)">-</template>
-      </template>
-    </p>
+  <div style="word-break: keep-all; background-color: green;" v-for="coff in mfccCoffs">
+    <!-- {{ coff }} -->
+    <template v-if="coff > 0">
+      <template v-for="n in Math.trunc(coff * 5)">-</template>
+    </template>
   </div>
 </template>
