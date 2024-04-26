@@ -11,8 +11,9 @@ const avatarAssets = {
   eyebrows: ['eyebrows_brookie', 'eyebrows_innocent'],
   hair: ['hair_ponytail', 'hair_thick_buzzcut'],
   mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
-  clothes: ['clothes_poloshirt'],
-  jewelry: ['jewelry_pearl', undefined],
+  clothes: ['clothes_poloshirt', undefined],
+  accessories: ['accessories_cateye', 'accessories_round', 'accessories_square', undefined],
+  jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
 };
 
 const skinParts = ['hands', 'heads', 'torsos'];
@@ -70,6 +71,7 @@ function changeClothingIdx() {
   </div>
   <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
     raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
+    <!-- <a-light id="dirlight" intensity="1" light="castShadow:true;type:directional" position="1 1 1"></a-light> -->
     <a-assets v-once timeout="25000">
       <template v-for="(fileNames, prop) in avatarAssets" :key="prop">
         <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName"
@@ -100,7 +102,7 @@ function changeClothingIdx() {
     <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
 
-    <a-entity position="0 1.5 -0.6">
+    <a-entity position="0 1.6 -0.6">
       <!-- a-gltf-model position="3 0 0" src="#lamp" /> -->
       <!-- <a-sphere src="#portal-preview" color="lightskyblue" /> -->
       <a-entity position="0.5 0 0" mesh-ui-block="width: 0.3; height: 0.3; backgroundColor: #000000; borderRadius: 0.1;"
