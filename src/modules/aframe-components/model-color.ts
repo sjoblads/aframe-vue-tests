@@ -58,7 +58,6 @@ export default () => {
           //   console.log('found colorable');
           //   return;
           // }
-          // const materialName = 'color'
           if (material.name.startsWith(materialName)) {
             let digit = Number.parseInt(material.name.substring(materialName.length));
             if (isNaN(digit)) {
