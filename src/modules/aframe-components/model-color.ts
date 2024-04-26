@@ -5,9 +5,13 @@ export default () => {
   AFRAME.registerComponent('model-color', {
     schema: {
       colors: {type: 'array'},
+      materialName: { type: 'string', default: 'color' }
     },
     nrOfCustomColors: 0,
     // threeColor: undefined as undefined | THREE.Color,
+    getNrOfCustomColors: function () {
+      return this.nrOfCustomColors;
+    },
     init: function () {
       console.log(this.el);
       this.el.addEventListener('model-loaded', this.update.bind(this));
@@ -19,6 +23,7 @@ export default () => {
     },
     update: function () {
       console.log('model-color updated:', this.data);
+      const materialName = this.data.materialName as string;
       // console.log(this.el.object3D);
       // console.log(this.el.object3DMap);
       const mesh = this.el.getObject3D('mesh');
@@ -53,10 +58,13 @@ export default () => {
           //   console.log('found colorable');
           //   return;
           // }
-          const keyword = 'color'
-          if(material.name.startsWith(keyword)){
-            const digit = Number.parseInt(material.name.substring(keyword.length));
-            if(digit > this.nrOfCustomColors) {
+          // const materialName = 'color'
+          if (material.name.startsWith(materialName)) {
+            let digit = Number.parseInt(material.name.substring(materialName.length));
+            if (isNaN(digit)) {
+              digit = 1; // we start colors at 1 and not 0...
+            }
+            if (digit > this.nrOfCustomColors) {
               this.nrOfCustomColors = digit;
               console.log('nrOfCustomColors:', this.nrOfCustomColors);
             }
