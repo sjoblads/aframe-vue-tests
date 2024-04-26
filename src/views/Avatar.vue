@@ -14,10 +14,6 @@ const avatarAssets = ref({
   jewelry: ['jewelry_pearl'],
 })
 
-const modelPaths = computed(() => {
-
-
-})
 const mouthFlipAssets = ref(['flip_a_e_i', 'flip_b_m_p', 'flip_c_d_n_s_t_x_y_z', 'flip_e', 'flip_f_v', 'flip_i_ch_sh', 'flip_l', 'flip_o', 'flip_r', 'flip_th', 'flip_u'])
 
 const pickedColors = reactive({
@@ -49,11 +45,11 @@ function changeClothingIdx() {
         <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName"
           :src="`/avatar/${prop}/${fileName}.glb`" />
       </template>
-      <a-asset-item id="shirt-colorable" src="/custom-props/PoloShirt_colorable.glb" />
+      <!-- <a-asset-item id="shirt-colorable" src="/custom-props/PoloShirt_colorable.glb" />
       <a-asset-item id="hair-colorable" src="/custom-props/PT_Colorable_HairTie.glb" />
       <a-asset-item id="hair-colorable-mat" src="/custom-props/Ponytail_materialfix.glb" />
       <a-asset-item id="ponytail-color1" src="/custom-props/hairTestMerged.glb" />
-      <a-asset-item id="ponytail-manycolors" src="/custom-props/hairTest5Colors.glb" />
+      <a-asset-item id="ponytail-manycolors" src="/custom-props/hairTest5Colors.glb" /> -->
       <!-- <a-asset-item id="head" src="/avatar/Body-Parts/Heads/Head_Medium_White.glb" /> -->
       <img id="portal-preview" src="@/assets/portal-screenshot.png">
       <!-- <a-asset-item id="sponza" :src="sponzaUrl" /> -->
@@ -78,7 +74,7 @@ function changeClothingIdx() {
       <a-gltf-model src="#heads-0" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${pickedColors.color4}`" src="#jewelry-0" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${Object.values(pickedColors)};`" src="#hair-0" position="0 0 0" />
-      <a-entity make-gltf-swappable :gltf-model="`#eyebrows-${currentClothingIdx}`" position="0 0 0" />
+      <a-gltf-model make-gltf-swappable :src="`#eyebrows-${currentClothingIdx}`" position="0 0 0" />
       <a-gltf-model :model-color="`colors: ${pickedColors.color4}, ${pickedColors.color3}`" src="#eyes-1"
         position="0 0 0" />
       <a-gltf-model make-gltf-swappable :src="`#mouths-${currentClothingIdx}`" position="0 0 0" />

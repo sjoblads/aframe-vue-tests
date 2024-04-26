@@ -7,7 +7,7 @@ export default function () {
       this.el.addEventListener('componentchanged', (evt) => {
         if (evt.detail.name === 'gltf-model') {
           const component = evt.target.components['gltf-model'];
-          console.log(component.data)
+          // console.log(component.data)
           const value = component.data;
           let newValue = value;
           if (value.charAt(0) === '#') {
@@ -18,7 +18,7 @@ export default function () {
           }
           component.data = newValue;
           component.update();
-          console.log(component);
+          // console.log(component);
         }
       })
     },
