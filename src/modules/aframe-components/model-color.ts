@@ -9,12 +9,10 @@ export default () => {
     },
     nrOfCustomColors: 0,
     // threeColor: undefined as undefined | THREE.Color,
-    getNrOfCustomColors: function () {
-      return this.nrOfCustomColors;
-    },
     init: function () {
-      console.log(this.el);
+      // console.log(this.el);
       this.el.addEventListener('model-loaded', this.update.bind(this));
+      // TODO: verify we can remove this call to update and then do just that!
       this.update();
       // this.checkCustomProps(this.el.object3D);
       // this.checkCustomProps(this.el.getObject3D('mesh'));
@@ -22,7 +20,7 @@ export default () => {
       // console.log(this.el.object3DMap);
     },
     update: function () {
-      console.log('model-color updated:', this.data);
+      // console.log('model-color updated:', this.data);
       const materialName = this.data.materialName as string;
       // console.log(this.el.object3D);
       // console.log(this.el.object3DMap);
@@ -46,6 +44,7 @@ export default () => {
       //     console.log('applying color to', node);
       //     // node.material.color = colors[0];
       // })
+      let maxColorDigit = 0;
       mesh.traverse((node) => {
           // console.log('node:', node.name, node.id, node.type);
           // console.log('children:', node.children);
@@ -63,12 +62,12 @@ export default () => {
             if (isNaN(digit)) {
               digit = 1; // we start colors at 1 and not 0...
             }
-            if (digit > this.nrOfCustomColors) {
-              this.nrOfCustomColors = digit;
-              console.log('nrOfCustomColors:', this.nrOfCustomColors);
+            if (digit > maxColorDigit) {
+              maxColorDigit = digit;
+            // console.log('nrOfCustomColors:', this.nrOfCustomColors);
             }
             if('color' in material && colors[digit-1]){
-              console.log('setting color!');
+              // console.log('setting color!');
               material.color = colors[digit-1];
             }
           }
@@ -77,29 +76,33 @@ export default () => {
           // mesh.material.needsUpdate = true;
         }
       });
+      if (maxColorDigit !== this.nrOfCustomColors) {
+        this.nrOfCustomColors = maxColorDigit;
+        this.el.emit('nrOfCustomColors', this.nrOfCustomColors);
+      }
     },
-    checkCustomProps: function(root: THREE.Object3D) {
-      console.log('checking custom props');
-      if(!root) return;
-      root.traverse( function (node) {
-        // if(Object.keys(node.userData).length !== 0) {
-          console.log('checking custom props in node');
-          console.log('node name:', node.name, node.id, node.type);
-          console.log('userData:', node.userData);
-          // console.log(node.userData);
-        // }
-      })
-    },
+    // checkCustomProps: function(root: THREE.Object3D) {
+    //   // console.log('checking custom props');
+    //   if(!root) return;
+    //   root.traverse( function (node) {
+    //     // if(Object.keys(node.userData).length !== 0) {
+    //       console.log('checking custom props in node');
+    //       console.log('node name:', node.name, node.id, node.type);
+    //       console.log('userData:', node.userData);
+    //       // console.log(node.userData);
+    //     // }
+    //   })
+    // },
     recursiveStoppableTraverse: function(root: THREE.Object3D, callBack: (node: THREE.Object3D) => boolean) {
-      console.log('travers is on node:', root);
+      // console.log('travers is on node:', root);
       const shouldStop = callBack(root);
       if(shouldStop){
-        console.log('callback gave stop signal');
+        // console.log('callback gave stop signal');
         return;
       }
       const children = root.children;
       for(const child of children) {
-        console.log('recursing on:', child);
+        // console.log('recursing on:', child);
         this.recursiveStoppableTraverse(child, callBack);
       }
     }
