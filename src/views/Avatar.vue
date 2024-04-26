@@ -31,23 +31,42 @@ const pickedColors = reactive({
 
 const modelEntityTags = ref<Entity[]>([]);
 
-const nrOfColors = computed(() => {
+const modelEntitiesWithCOlors = computed(() => {
   return modelEntityTags.value.map((el) => ({ el, nrOfColors: el.components['model-color'].nrOfCustomColors }))
 })
+
+const partsNrOfColors = reactive(Object.fromEntries(Object.keys(avatarAssets).map(k => [k, 0])))
+function setNrOfCustomColors(part: string, evt: CustomEvent) {
+  console.log(evt, part);
+  const entity = evt.target as Entity;
+  const nrOfColors = entity.components['model-color'].nrOfCustomColors;
+  console.log(nrOfColors);
+  partsNrOfColors[part] = nrOfColors;
+}
 
 const currentClothingIdx = ref(0);
 function changeClothingIdx() {
   currentClothingIdx.value = (currentClothingIdx.value + 1) % 2;
+  for (const [k, part] of Object.entries(currentAvatarSettings.parts)) {
+    const partType = k as keyof typeof avatarAssets;
+    const partList = avatarAssets[partType];
+    const l = avatarAssets[partType].length
+    const modelName = part.model
+    const idx = partList.indexOf(modelName);
+    const newIdx = (idx + 1) % l;
+    const newModelName = partList[newIdx];
+    currentAvatarSettings.parts[partType].model = newModelName;
+  }
 }
 
 </script>
 
 <template>
-  <div style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
-    <template v-for="(color, key) in pickedColors" :key="key">
+  <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
+    <!-- <template v-for="(color, key) in pickedColors" :key="key">
 
       <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color">
-    </template>
+    </template> -->
   </div>
   <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
     raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
@@ -89,6 +108,14 @@ function changeClothingIdx() {
 
       <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
         <template v-if="modelSetting.model">
+          <Teleport v-if="partsNrOfColors[key] !== 0" to="#colorpickers-container">
+            <div>
+              {{ key }}:
+              <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
+                <input type="color" v-model="modelSetting.colors[cIdx - 1]">
+              </template>
+            </div>
+          </Teleport>
           <template v-if="skinParts.includes(key)">
             <a-gltf-model make-gltf-swappable
               :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
@@ -98,6 +125,7 @@ function changeClothingIdx() {
               :model-color="`colors: ${currentAvatarSettings.skinColor ?? ''}; materialName: skin`" scale="-1 1 1" />
           </template>
           <a-gltf-model v-else make-gltf-swappable ref="modelEntityTags"
+            @nrOfCustomColors="setNrOfCustomColors(key, $event)"
             :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
             :model-color="`colors: ${modelSetting.colors ?? ''};`" />
 
