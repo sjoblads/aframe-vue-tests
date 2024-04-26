@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
+import type { Entity } from 'aframe';
 
-const avatarAssets = ref({
-  hands: ['hands_basic_left', 'hands_basic_right'],
+const avatarAssets = {
+  hands: ['hands_basic_left'],
   heads: ['heads_basic'],
   torsos: ['torsos_basic_male'],
   eyes: ['eyes_huge', 'eyes_relaxed'],
@@ -11,8 +12,12 @@ const avatarAssets = ref({
   hair: ['hair_ponytail', 'hair_thick_buzzcut'],
   mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
   clothes: ['clothes_poloshirt'],
-  jewelry: ['jewelry_pearl'],
-})
+  jewelry: ['jewelry_pearl', undefined],
+};
+
+const skinParts = ['hands', 'heads', 'torsos'];
+
+const currentAvatarSettings = reactive({ skinColor: 'saddlebrown', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k, { model: p[0], colors: [''] }])) })
 
 const mouthFlipAssets = ref(['flip_a_e_i', 'flip_b_m_p', 'flip_c_d_n_s_t_x_y_z', 'flip_e', 'flip_f_v', 'flip_i_ch_sh', 'flip_l', 'flip_o', 'flip_r', 'flip_th', 'flip_u'])
 
@@ -22,6 +27,12 @@ const pickedColors = reactive({
   color3: '#f0f0ff',
   color4: '#ff0000',
   color5: '#000000',
+})
+
+const modelEntityTags = ref<Entity[]>([]);
+
+const nrOfColors = computed(() => {
+  return modelEntityTags.value.map((el) => ({ el, nrOfColors: el.components['model-color'].nrOfCustomColors }))
 })
 
 const currentClothingIdx = ref(0);
@@ -41,9 +52,15 @@ function changeClothingIdx() {
   <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
     raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
     <a-assets v-once timeout="25000">
-      <template v-once v-for="(fileNames, prop) in avatarAssets" :key="prop">
+      <template v-for="(fileNames, prop) in avatarAssets" :key="prop">
         <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName"
           :src="`/avatar/${prop}/${fileName}.glb`" />
+        <!-- <template v-else>
+          <a-asset-item :id="`${prop}-${idx}-left`" v-for="(fileName, idx) in fileNames" :key="fileName"
+            :src="`/avatar/${prop}/${fileName}_left.glb`" />
+          <a-asset-item :id="`${prop}-${idx}-right`" v-for="(fileName, idx) in fileNames" :key="fileName"
+            :src="`/avatar/${prop}/${fileName}_right.glb`" /> -->
+        <!-- </template> -->
       </template>
       <!-- <a-asset-item id="shirt-colorable" src="/custom-props/PoloShirt_colorable.glb" />
       <a-asset-item id="hair-colorable" src="/custom-props/PT_Colorable_HairTie.glb" />
@@ -67,23 +84,25 @@ function changeClothingIdx() {
     <a-entity position="0 1.5 -0.6">
       <!-- a-gltf-model position="3 0 0" src="#lamp" /> -->
       <!-- <a-sphere src="#portal-preview" color="lightskyblue" /> -->
-      <a-entity position="1 0 0" mesh-ui-block="width: 0.3; height: 0.3; backgroundColor: #000000; borderRadius: 0.1;"
+      <a-entity position="0.5 0 0" mesh-ui-block="width: 0.3; height: 0.3; backgroundColor: #000000; borderRadius: 0.1;"
         @click="changeClothingIdx" class="clickable" />
 
-      <a-gltf-model src="#torsos-0" position="0 0 0" />
-      <a-gltf-model src="#heads-0" position="0 0 0" />
-      <a-gltf-model :model-color="`colors: ${pickedColors.color4}`" src="#jewelry-0" position="0 0 0" />
-      <a-gltf-model :model-color="`colors: ${Object.values(pickedColors)};`" src="#hair-0" position="0 0 0" />
-      <a-gltf-model make-gltf-swappable :src="`#eyebrows-${currentClothingIdx}`" position="0 0 0" />
-      <a-gltf-model :model-color="`colors: ${pickedColors.color4}, ${pickedColors.color3}`" src="#eyes-1"
-        position="0 0 0" />
-      <a-gltf-model make-gltf-swappable :src="`#mouths-${currentClothingIdx}`" position="0 0 0" />
-      <a-gltf-model :model-color="`colors: ${pickedColors.color5}`" src="#clothes-0" position="0 0 0" />
-      <a-gltf-model src="#hands-0" position="0 0 0" />
-      <a-gltf-model src="#hands-1" position="0 0 0" />
+      <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
+        <template v-if="modelSetting.model">
+          <template v-if="skinParts.includes(key)">
+            <a-gltf-model make-gltf-swappable
+              :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
+              :model-color="`colors: ${currentAvatarSettings.skinColor ?? ''}; materialName: skin`" />
+            <a-gltf-model v-if="key === 'hands' && modelSetting.model" make-gltf-swappable
+              :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
+              :model-color="`colors: ${currentAvatarSettings.skinColor ?? ''}; materialName: skin`" scale="-1 1 1" />
+          </template>
+          <a-gltf-model v-else make-gltf-swappable ref="modelEntityTags"
+            :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
+            :model-color="`colors: ${modelSetting.colors ?? ''};`" />
 
-      <!-- <a-gltf-model position="2 0 0" src="#shirt-colorable" model-color="color: blue;"/> -->
-      <!-- <a-gltf-model rotation="0 110 0" position="0 0 0" src="#hair-colorable-mat" model-color="color: blue;"/> -->
+        </template>
+      </template>
     </a-entity>
   </a-scene>
 </template>
