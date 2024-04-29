@@ -21,7 +21,7 @@ const avatarAssets = {
 
 const skinParts = ['hands', 'heads', 'torsos'];
 
-const currentAvatarSettings = reactive({ skinColor: 'saddlebrown', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k as keyof typeof avatarAssets, { model: p[0], colors: [''] }])) })
+const currentAvatarSettings = reactive({ skinColor: '', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k as keyof typeof avatarAssets, { model: p[0], colors: [''] }])) })
 
 // watch(currentAvatarSettings, (newSettings) => {
 //   window.localStorage.setItem('avatarSettings', JSON.stringify(newSettings));
