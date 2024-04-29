@@ -87,6 +87,11 @@ function changeClothingIdx() {
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
     <div class="grid grid-cols-[auto_auto_auto] items-center gap-2">
+      <div class="col-start-1 col-end-2">skin color</div>
+      <div
+        class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+        <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="currentAvatarSettings.skinColor">
+      </div>
       <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
 
         <template v-if="modelSetting.model && partsNrOfColors[key] !== 0">
