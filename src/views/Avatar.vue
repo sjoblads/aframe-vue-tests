@@ -9,9 +9,9 @@ const avatarAssets = {
   heads: ['heads_basic'],
   torsos: ['torsos_basic_male'],
   eyes: ['eyes_huge', 'eyes_relaxed'],
-  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent'],
-  hair: ['hair_ponytail', 'hair_thick_buzzcut'],
-  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
+  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', undefined],
+  hair: ['hair_ponytail', 'hair_thick_buzzcut', undefined],
+  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile', undefined],
   clothes: ['clothes_poloshirt', undefined],
   accessories: ['accessories_cateye', 'accessories_round', 'accessories_square', undefined],
   jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
@@ -21,7 +21,7 @@ const avatarAssets = {
 
 const skinParts = ['hands', 'heads', 'torsos'];
 
-const currentAvatarSettings = reactive({ skinColor: 'saddlebrown', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k, { model: p[0], colors: [''] }])) })
+const currentAvatarSettings = reactive({ skinColor: 'saddlebrown', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k as keyof typeof avatarAssets, { model: p[0], colors: [''] }])) })
 
 // watch(currentAvatarSettings, (newSettings) => {
 //   window.localStorage.setItem('avatarSettings', JSON.stringify(newSettings));
@@ -67,45 +67,51 @@ function setNrOfCustomColors(part: string, evt: CustomEvent) {
   partsNrOfColors[part] = nrOfColors;
 }
 
-const currentClothingIdx = ref(0);
-function changeClothingIdx() {
-  currentClothingIdx.value = (currentClothingIdx.value + 1) % 2;
-  for (const [k, part] of Object.entries(currentAvatarSettings.parts)) {
-    const partType = k as keyof typeof avatarAssets;
-    const partList = avatarAssets[partType];
-    const l = avatarAssets[partType].length
-    const modelName = part.model
-    const idx = partList.indexOf(modelName);
-    const newIdx = (idx + 1) % l;
-    const newModelName = partList[newIdx];
-    currentAvatarSettings.parts[partType].model = newModelName;
+function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) {
+  const partList = avatarAssets[partType];
+  const l = avatarAssets[partType].length
+  const modelName = currentAvatarSettings.parts[partType].model
+  // @ts-ignore
+  let idx = partList.indexOf(modelName);
+  if (idx === -1) {
+    console.warn('no idx for that modelName');
+    idx = 0;
   }
+  console.log(idx);
+  const newIdx = (idx + offset + l) % l;
+  console.log(newIdx);
+  const newModelName = partList[newIdx];
+  console.log(newModelName);
+  currentAvatarSettings.parts[partType].model = newModelName;
 }
 
 </script>
 
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
-    <div class="grid grid-cols-[auto_auto_auto] items-center gap-2">
-      <div class="col-start-1 col-end-2">skin color</div>
+    <div class="grid justify-center grid-cols-[auto_auto_auto_auto_auto] items-center gap-7">
+      <div class="col-span-3 col-start-1 text-center">
+        skin color
+      </div>
       <div
         class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
         <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="currentAvatarSettings.skinColor">
       </div>
       <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
-
-        <template v-if="modelSetting.model && partsNrOfColors[key] !== 0">
-          <div class="col-start-1 col-end-2">{{ key }}</div>
-          <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
-            <div
-              class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
-              <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
-            </div>
-          </template>
+        <div v-if="avatarAssets[key].length > 1" class="grid items-center col-span-3 col-start-1 grid-cols-subgrid">
+          <button @click="changeClothingIdx(key, -1)" class="p-2 rounded-full bg-slate-700 text-slate-50">&lt;</button>
+          <span class="text-center">{{ key }} {{ avatarAssets[key].length }}</span>
+          <button @click="changeClothingIdx(key, -1)" class="p-2 rounded-full bg-slate-700 text-slate-50">&gt;</button>
+        </div>
+        <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
+          <div
+            class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+            <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
+          </div>
         </template>
       </template>
     </div>
-    <div class="flex gap-4">
+    <div class="flex gap-4 mt-6">
       <button class="p-3 text-white rounded-xl bg-slate-800" @click="saveAvatarSettingsToStorage">save</button>
       <button class="p-3 text-white rounded-xl bg-slate-800" @click="loadAvatarFromStorage">load</button>
     </div>
