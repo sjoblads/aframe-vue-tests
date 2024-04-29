@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
+// import { useStorage } from '@vueuse/core';
 import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
 import type { Entity } from 'aframe';
 
@@ -16,9 +17,30 @@ const avatarAssets = {
   jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
 };
 
+// const avatarSettingsInStorage = useStorage('avatarSettings', {});
+
 const skinParts = ['hands', 'heads', 'torsos'];
 
 const currentAvatarSettings = reactive({ skinColor: 'saddlebrown', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k, { model: p[0], colors: [''] }])) })
+
+// watch(currentAvatarSettings, (newSettings) => {
+//   window.localStorage.setItem('avatarSettings', JSON.stringify(newSettings));
+// })
+
+function saveAvatarSettingsToStorage() {
+  window.localStorage.setItem('avatarSettings', JSON.stringify(currentAvatarSettings));
+}
+
+function loadAvatarFromStorage() {
+  const loadedString = localStorage.getItem('avatarSettings');
+  if (!loadedString) {
+    console.error('failed to load from localstorage');
+    return;
+  }
+  const parsedAvatarSettings = JSON.parse(loadedString);
+  currentAvatarSettings.parts = parsedAvatarSettings.parts;
+  currentAvatarSettings.skinColor = parsedAvatarSettings.skinColor;
+}
 
 const mouthFlipAssets = ref(['flip_a_e_i', 'flip_b_m_p', 'flip_c_d_n_s_t_x_y_z', 'flip_e', 'flip_f_v', 'flip_i_ch_sh', 'flip_l', 'flip_o', 'flip_r', 'flip_th', 'flip_u'])
 
@@ -64,6 +86,8 @@ function changeClothingIdx() {
 
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
+    <button @click="saveAvatarSettingsToStorage">save</button>
+    <button @click="loadAvatarFromStorage">load</button>
     <!-- <template v-for="(color, key) in pickedColors" :key="key">
 
       <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color">
