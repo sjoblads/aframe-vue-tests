@@ -17,6 +17,9 @@ importers:
       aframe-atlas-uvs-component:
         specifier: ^3.0.0
         version: 3.0.0
+      aframe-orbit-controls:
+        specifier: ^1.3.2
+        version: 1.3.2
       aframe-troika-text:
         specifier: ^0.11.0
         version: 0.11.0(aframe@1.5.0)(three@0.158.0)
@@ -828,6 +831,9 @@ packages:
 
   aframe-atlas-uvs-component@3.0.0:
     resolution: {integrity: sha512-zoGFRsPTyXjq9hmEkJ/QiC/Pr9FmQxBm93Td2j7BE0yZ05H3z9KZwLm/gweRKPDYfc6PdV5SVtpYdBnRfjhH2A==}
+
+  aframe-orbit-controls@1.3.2:
+    resolution: {integrity: sha512-j4e14ko3ELmfMF8FWEXtVSqSObYtoJpyhyZ9l2HY23iLY3Z7qmT/kRJ24wDQT/CEmToi3a9j7MqUeLDcbLALDA==}
 
   aframe-troika-text@0.11.0:
     resolution: {integrity: sha512-EzqUX2NR/COI8jUYBg4sQwoX9K86/GuKTWkZk79+Hk7Q9ytKm/XFGUoBc5BE8tDVtNdxmGPvAqKqA4aXLWPwog==}
@@ -3229,6 +3235,8 @@ snapshots:
   acorn@8.11.3: {}
 
   aframe-atlas-uvs-component@3.0.0: {}
+
+  aframe-orbit-controls@1.3.2: {}
 
   aframe-troika-text@0.11.0(aframe@1.5.0)(three@0.158.0):
     dependencies:
