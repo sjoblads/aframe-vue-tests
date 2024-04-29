@@ -98,16 +98,20 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
         <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="currentAvatarSettings.skinColor">
       </div>
       <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
-        <div v-if="avatarAssets[key].length > 1" class="grid items-center col-span-3 col-start-1 grid-cols-subgrid">
-          <button @click="changeClothingIdx(key, -1)" class="p-2 rounded-full bg-slate-700 text-slate-50">&lt;</button>
-          <span class="text-center">{{ key }} {{ avatarAssets[key].length }}</span>
-          <button @click="changeClothingIdx(key, -1)" class="p-2 rounded-full bg-slate-700 text-slate-50">&gt;</button>
-        </div>
-        <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
-          <div
-            class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
-            <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
+        <template v-if="avatarAssets[key].length > 1">
+          <div class="grid items-center col-span-3 col-start-1 grid-cols-subgrid">
+            <button @click="changeClothingIdx(key, -1)"
+              class="p-2 rounded-full bg-slate-700 text-slate-50">&lt;</button>
+            <span class="text-center">{{ key }} {{ avatarAssets[key].length }}</span>
+            <button @click="changeClothingIdx(key, -1)"
+              class="p-2 rounded-full bg-slate-700 text-slate-50">&gt;</button>
           </div>
+          <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
+            <div
+              class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+              <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
+            </div>
+          </template>
         </template>
       </template>
     </div>
