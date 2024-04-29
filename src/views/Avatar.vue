@@ -86,6 +86,15 @@ function changeClothingIdx() {
 
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
+    <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
+
+      <div v-if="modelSetting.model && partsNrOfColors[key] !== 0">
+        {{ key }}:
+        <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
+          <input type="color" v-model="modelSetting.colors[cIdx - 1]">
+        </template>
+      </div>
+    </template>
     <button @click="saveAvatarSettingsToStorage">save</button>
     <button @click="loadAvatarFromStorage">load</button>
     <!-- <template v-for="(color, key) in pickedColors" :key="key">
@@ -94,7 +103,7 @@ function changeClothingIdx() {
     </template> -->
   </div>
   <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
-    raycaster="objects: .clickable" xr-mode-ui="enabled: true;">
+    raycaster="objects: .clickable" xr-mode-ui="enabled: false;">
     <!-- <a-light id="dirlight" intensity="1" light="castShadow:true;type:directional" position="1 1 1"></a-light> -->
     <a-assets v-once timeout="25000">
       <template v-for="(fileNames, prop) in avatarAssets" :key="prop">
@@ -120,28 +129,30 @@ function changeClothingIdx() {
     </a-assets>
     <!-- <a-mixin id="emojimap" atlas-uvs="totalRows: 43; totalColumns: 43" :material="`src: ${emojiSheetUrl}; transparent: true; shader: flat;`" geometry="primitive: plane; width: 0.4; height: 0.4; buffer: true; skipCache: true" /> -->
 
-    <a-camera wasd-controls="acceleration: 15;" />
+    <!-- <a-camera wasd-controls="acceleration: 15;" /> -->
+    <a-entity camera look-controls="enabled: false"
+      orbit-controls="minDistance: 1; maxDistance: 4; initialPosition: 0 0.4 1; rotateSpeed: 0.5; autoRotate: true"></a-entity>
     <a-sky color="skyblue"></a-sky>
     <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
     <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
 
-    <a-entity position="0 1.6 -0.6">
+    <a-entity position="0 0.2 0">
       <!-- a-gltf-model position="3 0 0" src="#lamp" /> -->
       <!-- <a-sphere src="#portal-preview" color="lightskyblue" /> -->
-      <a-entity position="0.5 0 0" mesh-ui-block="width: 0.3; height: 0.3; backgroundColor: #000000; borderRadius: 0.1;"
-        @click="changeClothingIdx" class="clickable" />
+      <!-- <a-entity position="0.5 0 0" mesh-ui-block="width: 0.3; height: 0.3; backgroundColor: #000000; borderRadius: 0.1;"
+        @click="changeClothingIdx" class="clickable" /> -->
 
       <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
         <template v-if="modelSetting.model">
-          <Teleport v-if="partsNrOfColors[key] !== 0" to="#colorpickers-container">
+          <!-- <Teleport v-if="partsNrOfColors[key] !== 0" to="#colorpickers-container">
             <div>
               {{ key }}:
               <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
                 <input type="color" v-model="modelSetting.colors[cIdx - 1]">
               </template>
             </div>
-          </Teleport>
+          </Teleport> -->
           <template v-if="skinParts.includes(key)">
             <a-gltf-model make-gltf-swappable
               :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"

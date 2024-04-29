@@ -20,6 +20,7 @@ export default async function registerComponents() {
   // troika.default();
   // await import('aframe-troika-text');
   // await import('aframe-atlas-uvs-component');
+  await import('aframe-orbit-controls');
   
   componentsRegistered = true;
 }
