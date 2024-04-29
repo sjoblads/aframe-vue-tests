@@ -86,20 +86,24 @@ function changeClothingIdx() {
 
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
-    <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
+    <div class="grid grid-cols-[auto_auto_auto] items-center gap-2">
+      <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
 
-      <div v-if="modelSetting.model && partsNrOfColors[key] !== 0" class="m-4 bg-green-300">
-        {{ key }}:
-        <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
-          <div
-            class="inline-block m-0 overflow-hidden rounded-full size-5 outline-offset-2 outline-2 outline outline-slate-700">
-            <input class="size-[150%] m-[-25%]" type="color" v-model="modelSetting.colors[cIdx - 1]">
-          </div>
+        <template v-if="modelSetting.model && partsNrOfColors[key] !== 0">
+          <div class="col-start-1 col-end-2">{{ key }}</div>
+          <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
+            <div
+              class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+              <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
+            </div>
+          </template>
         </template>
-      </div>
-    </template>
-    <button @click="saveAvatarSettingsToStorage">save</button>
-    <button @click="loadAvatarFromStorage">load</button>
+      </template>
+    </div>
+    <div class="flex gap-4">
+      <button class="p-3 text-white rounded-xl bg-slate-800" @click="saveAvatarSettingsToStorage">save</button>
+      <button class="p-3 text-white rounded-xl bg-slate-800" @click="loadAvatarFromStorage">load</button>
+    </div>
     <!-- <template v-for="(color, key) in pickedColors" :key="key">
 
       <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color">
@@ -134,7 +138,7 @@ function changeClothingIdx() {
 
     <!-- <a-camera wasd-controls="acceleration: 15;" /> -->
     <a-entity camera look-controls="enabled: false"
-      orbit-controls="minDistance: 1; maxDistance: 4; initialPosition: 0 0.4 1; rotateSpeed: 0.5; autoRotate: true"></a-entity>
+      orbit-controls="minDistance: 0.7; maxDistance: 4; initialPosition: 0 0.4 1; rotateSpeed: 0.5; zoomSpeed: 1.6; autoRotate: true; enablePan: false;"></a-entity>
     <a-sky color="skyblue"></a-sky>
     <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
     <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
