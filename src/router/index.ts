@@ -32,6 +32,11 @@ const router = createRouter({
       name: 'avatar',
       component: () => import('@/views/Avatar.vue')
     },
+    {
+      path: '/openproject',
+      name: 'openproject',
+      component: () => import('@/views/OpenProject.vue')
+    },
   ]
 })
 
