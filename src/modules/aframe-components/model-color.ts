@@ -117,8 +117,9 @@ export default () => {
           if (material.name.startsWith(materialName)) {
             let digit = Number.parseInt(material.name.substring(materialName.length));
             if (isNaN(digit)) {
-              console.warn('no digit on custom material');
-              return;
+              console.warn('no digit on custom material. using digit 1');
+              digit = 1;
+              // return;
             }
             digit -= 1;
             if ('color' in material && digit >= 0) {

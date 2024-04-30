@@ -8,16 +8,16 @@ onBeforeMount(() => {
 })
 
 const avatarAssets = {
-  // hands: ['hands_basic_left'],
+  hands: ['hands_basic_left'],
   heads: ['heads_basic'],
-  // torsos: ['torsos_basic_male'],
+  torsos: ['torsos_basic_male'],
   eyes: ['eyes_huge', 'eyes_relaxed'],
   eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', undefined],
   hair: ['hair_ponytail', 'hair_multicolor', 'hair_thick_buzzcut', undefined],
   mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
-  // clothes: ['clothes_poloshirt', undefined],
-  // accessories: [undefined, 'accessories_cateye', 'accessories_round', 'accessories_square'],
-  // jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
+  clothes: ['clothes_poloshirt', undefined],
+  accessories: [undefined, 'accessories_cateye', 'accessories_round', 'accessories_square'],
+  jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
 };
 
 const skinParts = ['hands', 'heads', 'torsos'];
