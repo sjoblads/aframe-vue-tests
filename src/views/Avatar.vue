@@ -40,8 +40,9 @@ function loadAvatarFromStorage() {
 }
 
 const currentColorSettings = reactive(Object.fromEntries(Object.keys(avatarAssets).map((k) => [k as keyof typeof avatarAssets, []])));
-
 const customColorsIsActive = reactive(Object.fromEntries(Object.keys(avatarAssets).map(k => [k, [false, false]])));
+const currentSkinColor = ref('');
+const skinColorIsActive = ref(false);
 
 // watch(customColorsIsActive, (newV, oldV) => {
 //   console.log(newV);
@@ -51,6 +52,14 @@ function onColorPicked(part: string, colorIdx: number, color: string) {
   console.log('color picked', part, colorIdx, color);
   currentAvatarSettings.parts[part].colors[colorIdx] = color;
 }
+
+watch([skinColorIsActive, currentSkinColor], ([active, newColor]) => {
+  if (!active || !currentSkinColor.value) {
+    currentAvatarSettings.skinColor = '';
+  } else {
+    currentAvatarSettings.skinColor = newColor;
+  }
+})
 
 function onCustomColorActiveChanged(part: string, colorIdx: number, active: boolean) {
   if (!active || !currentColorSettings[part][colorIdx]) {
@@ -97,9 +106,11 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
       <div class="col-span-3 col-start-1 text-center">
         skin color
       </div>
+      <input type="checkbox" v-model="skinColorIsActive">
       <div
-        class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
-        <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="currentAvatarSettings.skinColor">
+        class="has-[:disabled]:outline-slate-700/40 bg-transparent inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+        <input :disabled="!skinColorIsActive" class="disabled:invisible size-[200%] m-[-50%] cursor-pointer"
+          type="color" v-model="currentSkinColor">
       </div>
       <template v-for="(partsList, key) in avatarAssets" :key="key">
         <template v-if="avatarAssets[key].length > 1">
