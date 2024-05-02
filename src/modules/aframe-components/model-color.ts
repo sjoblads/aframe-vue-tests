@@ -17,11 +17,11 @@ export default () => {
       this.stashedDefaultColors = [];
       // console.log(this.el);
       this.el.addEventListener('model-loaded', () => {
-        console.log('model loaded event');
+        // console.log('model loaded event');
         this.modelLoaded = true;
         this.defaultColorsStashed = false;
         // this.stashDefaultColors();
-        console.log('calling update manually');
+        // console.log('calling update manually');
         this.update();
       })
       // this.el.addEventListener('model-loaded', this.update.bind(this));
@@ -34,13 +34,13 @@ export default () => {
       // console.log(this.el.object3DMap);
     },
     update: function () {
-      console.log('model-color updated:', this.data.colors);
+      // console.log('model-color updated:', this.data.colors);
       if (!this.modelLoaded) {
-        console.log('model not yet loaded. skipping');
+        // console.log('model not yet loaded. skipping');
         return;
       }
       if (!this.defaultColorsStashed) {
-        console.log('default colors not stashed. stashing now.');
+        // console.log('default colors not stashed. stashing now.');
         this.stashDefaultColors();
         // return;
       }
@@ -52,10 +52,10 @@ export default () => {
       const colors: THREE.Color[] = [];
       for (let i = 0; i < this.stashedDefaultColors.length; i++) {
         if (!this.data.colors[i] || this.data.colors[i] === '') {
-          console.log('using default color', i, this.stashedDefaultColors[i]);
+          // console.log('using default color', i, this.stashedDefaultColors[i]);
           colors[i] = this.stashedDefaultColors[i].clone();
-          console.log(this.stashedDefaultColors);
-          console.log(colors);
+          // console.log(this.stashedDefaultColors);
+          // console.log(colors);
         } else {
           colors[i] = new THREE.Color(this.data.colors[i]);
         }
@@ -105,7 +105,7 @@ export default () => {
       }
     },
     stashDefaultColors: function () {
-      console.log('stashing colors');
+      // console.log('stashing colors');
       const rootMesh = this.el.getObject3D('mesh');
       if (!rootMesh) { return; }
       const materialName = this.data.materialName as string;
@@ -117,19 +117,19 @@ export default () => {
           if (material.name.startsWith(materialName)) {
             let digit = Number.parseInt(material.name.substring(materialName.length));
             if (isNaN(digit)) {
-              console.warn('no digit on custom material. using digit 1');
+              // console.warn('no digit on custom material. using digit 1');
               digit = 1;
               // return;
             }
             digit -= 1;
             if ('color' in material && digit >= 0) {
-              console.log('found default color:', digit, material.color);
+              // console.log('found default color:', digit, material.color);
               this.stashedDefaultColors[digit] = material.color.clone() as THREE.Color;
             }
           }
         }
       });
-      console.log('stashed color:', this.stashedDefaultColors);
+      // console.log('stashed color:', this.stashedDefaultColors);
       this.defaultColorsStashed = true;
     }
     // recursiveStoppableTraverse: function(root: THREE.Object3D, callBack: (node: THREE.Object3D) => boolean) {
