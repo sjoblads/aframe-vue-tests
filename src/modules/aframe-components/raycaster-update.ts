@@ -22,7 +22,7 @@ export default function () {
         //   canvas.style.cursor = 'pointer';
         // }
         this.isIntersecting = true;
-        console.log(evt);
+        // console.log(evt);
       },
       'raycaster-intersection-cleared': function (evt: DetailEvent<any>) {
         // this.raycaster = null;
@@ -32,7 +32,7 @@ export default function () {
         // }
         // this.el.emit('raycast-out', evt);
         this.isIntersecting = false;
-        console.log(evt);
+        // console.log(evt);
       },
     },
     tick: function (t, dt) {
