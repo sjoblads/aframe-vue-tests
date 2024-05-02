@@ -13,6 +13,11 @@ const router = createRouter({
       component: () => import('@/views/Sandbox.vue'),
     },
     {
+      path: '/wall',
+      name: 'wall',
+      component: () => import('@/views/WallTests.vue'),
+    },
+    {
       path: '/speech',
       name: 'speech',
       component: () => import('@/views/SpeechExperiments.vue')
