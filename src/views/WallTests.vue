@@ -37,12 +37,13 @@ function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
 </script>
 
 <template>
-  <a-scene ref="sceneTag" cursor="rayOrigin: mouse;" raycaster="objects: .clickable;">
+  <a-scene ref="sceneTag" cursor="rayOrigin: mouse;" raycaster="objects: .clickable;" raycaster-update
+    @raycast-update="placeCursor">
     <a-assets>
       <a-asset-item id="sponza" :src="sponzaUrl"></a-asset-item>
     </a-assets>
     <a-torus ref="cursorEntity" scale=".1 .1 .1" color="teal" />
-    <a-gltf-model @click="onClick" raycaster-listen @raycast-change="placeCursor" class="clickable" src="#sponza" />
+    <a-gltf-model @click="onClick" @raycast-change="placeCursor" class="clickable" src="#sponza" />
     <a-torus-knot position="0 1.6 -4" color="red"
       animation="property: rotation; from: 0 0 0; to: 400 300 500; dir: alternate; dur: 15000; easing: easeInOutQuad; loop: true;"></a-torus-knot>
   </a-scene>
