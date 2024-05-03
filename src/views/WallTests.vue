@@ -23,13 +23,15 @@ function placeCursor(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   // cursor.object3D.position.set(...evt.detail.intersection.point.toArray());
   const normal = evt.detail.intersection.normal;
   if (!normal) { console.error('no normal vector in intersection object'); return; }
-  const fromVector = new THREE.Vector3(0, 1, 0);
+  const fromVector = new THREE.Vector3(0, 0, 1);
   const newRotation = new THREE.Quaternion();
   newRotation.setFromUnitVectors(fromVector, normal);
 
   newPos.add(normal.setLength(0.05));
+  cursor.object3D.rotation.reorder('YXZ');
   cursor.object3D.position.set(...newPos.toArray());
   cursor.object3D.rotation.setFromQuaternion(newRotation);
+  cursor.object3D.rotation.z = 0;
 }
 
 function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
