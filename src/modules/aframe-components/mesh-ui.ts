@@ -245,6 +245,7 @@ export default async function () {
     },
   })
 
+  // Here we monkey patch aframes internal raycaster so it also intersects mesh-ui object3Ds
   const globalRaycasterComponent = AFRAME.components['raycaster'].Component;
   globalRaycasterComponent.prototype['checkIntersections'] = patchedCheckIntersection;
   globalRaycasterComponent.prototype['flattenObject3DMaps'] = patchedFlattenObject3DMaps;
@@ -347,6 +348,7 @@ function patchedCheckIntersection() {
       intersections.push(intersection);
       intersectedEls.push(intersection.object.el);
     } else if(intersection.object.parent?.name === MESH_BLOCK_NAME) {
+      // NOTE: THIS PART ADDED BY GUNNAR. THIS IS PART OF THE MONKEY PATCH
       // console.log('intersection with ui block:');
       // console.log(intersection);
       intersection.object = intersection.object.parent
@@ -425,6 +427,7 @@ function patchedFlattenObject3DMaps(els) {
     const el = els[i];
     if(el.components[MESH_BLOCK_NAME]){
       // console.log('found entity with mesh-ui-block. Will get special treatment', el);
+      // NOTE: HERE'S SOME MORE MONKEY PATCHING!
       const meshBlockComponent = el.components[MESH_BLOCK_NAME];
       objects.push(meshBlockComponent.block);
     }
