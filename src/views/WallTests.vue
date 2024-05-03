@@ -33,20 +33,20 @@ const placedObjectsEntity = ref<Entity>();
 // NOTE: aframe is acting a bit peculiar, in where it's not possible to simply reparent a DOM entity.
 // We need to clone it in order to make aframe pickup that it should be included in the scene
 function addCursorChildrenToScene() {
-  const cursor = cursorEntity.value;
-  if (!cursor) {
-    console.warn('cursorEntity was undefined');
+  const movedObjectsRoot = cursorEntity.value?.lastChild as Entity | undefined | null;
+  if (!movedObjectsRoot) {
+    console.warn('movedObjects was undefined');
     return;
   }
   // Unclear if we need to flushToDom
   // I think it might become necessary if we want to keep custom properties set in components.
   // cursorEntity.value?.flushToDOM(true);
-  const cursorPos = cursor.object3D.getWorldPosition(new THREE.Vector3());
-  const cursorRot = cursor.object3D.getWorldQuaternion(new THREE.Quaternion());
+  const cursorPos = movedObjectsRoot.object3D.getWorldPosition(new THREE.Vector3());
+  const cursorRot = movedObjectsRoot.object3D.getWorldQuaternion(new THREE.Quaternion());
 
-  const clone = cursorEntity.value?.cloneNode(true);
+  const clone = movedObjectsRoot.cloneNode(true);
   const children = clone?.childNodes;
-  cursorEntity.value?.replaceChildren()
+  movedObjectsRoot.replaceChildren()
 
   if (!children) {
     console.warn('no children in cursor');
@@ -58,18 +58,29 @@ function addCursorChildrenToScene() {
     e.object3D.setRotationFromQuaternion(cursorRot);
   })
   placedObjectsEntity.value?.append(...children);
+
+  const ring = cursorEntity.value?.firstChild as Entity;
+  ring.object3D.visible = true;
 }
 
 type placeableAssetTypes = `a-${'image' | 'sphere'}`;
 function createCursorChild(type: placeableAssetTypes, url: string) {
-  console.log(type, url);
+
+  const ring = cursorEntity.value?.firstChild as Entity;
+  ring.object3D.visible = false;
+  const objectContainer = cursorEntity.value?.lastChild as Entity;
+  if (!objectContainer) {
+    console.warn('object root was undefined');
+    return;
+  }
+  // console.log(type, url);
   const newEntity = document.createElement(type)
   if (type === 'a-image') {
     newEntity.setAttribute('src', url);
   } else {
     newEntity.setAttribute('color', 'teal');
   }
-  cursorEntity.value?.replaceChildren(newEntity);
+  objectContainer.replaceChildren(newEntity);
 }
 
 </script>
@@ -87,9 +98,10 @@ function createCursorChild(type: placeableAssetTypes, url: string) {
     <a-entity ref="placedObjectsEntity">
 
     </a-entity>
-    <a-ring color="teal" radius-outer="0.2" radius-inner="0.1" ref="cursorEntity">
-      <a-torus scale=".1 .1 .1" color="teal" />
-    </a-ring>
+    <a-entity ref="cursorEntity">
+      <a-ring id="curors-ring" color="teal" radius-outer="0.2" radius-inner="0.1" />
+      <a-entity id="moved-objects"></a-entity>
+    </a-entity>
 
     <a-gltf-model @click="onClick" class="clickable" src="#sponza" />
     <a-torus-knot position="0 1.6 -4" color="red"
