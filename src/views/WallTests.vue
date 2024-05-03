@@ -7,15 +7,20 @@ const sceneTag = ref<Scene>();
 
 const cursorEntity = ref<Entity>();
 function placeCursor(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
+  const cursor = cursorEntity.value;
   // console.log(evt.detail.intersection.point);
-  if (!cursorEntity.value) return;
-  cursorEntity.value.object3D.position.set(...evt.detail.intersection.point.toArray());
+  if (!cursor) return;
+  const newPos = evt.detail.intersection.point.clone();
+  // cursor.object3D.position.set(...evt.detail.intersection.point.toArray());
   const normal = evt.detail.intersection.normal;
-  if (!normal) return;
+  if (!normal) { console.error('no normal vector in intersection object'); return; }
   const up = new THREE.Vector3(0, 0, 1);
   const newRotation = new THREE.Quaternion();
   newRotation.setFromUnitVectors(up, normal);
-  cursorEntity.value.object3D.rotation.setFromQuaternion(newRotation);
+
+  newPos.add(normal.setLength(0.05));
+  cursor.object3D.position.set(...newPos.toArray());
+  cursor.object3D.rotation.setFromQuaternion(newRotation);
 }
 
 function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
@@ -82,9 +87,9 @@ function createCursorChild(type: placeableAssetTypes, url: string) {
     <a-entity ref="placedObjectsEntity">
 
     </a-entity>
-    <a-entity ref="cursorEntity">
+    <a-ring color="teal" radius-outer="0.2" radius-inner="0.1" ref="cursorEntity">
       <a-torus scale=".1 .1 .1" color="teal" />
-    </a-entity>
+    </a-ring>
 
     <a-gltf-model @click="onClick" class="clickable" src="#sponza" />
     <a-torus-knot position="0 1.6 -4" color="red"
