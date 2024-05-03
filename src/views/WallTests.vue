@@ -38,9 +38,7 @@ function addCursorChildrenToScene() {
     console.warn('movedObjects was undefined');
     return;
   }
-  // Unclear if we need to flushToDom
-  // I think it might become necessary if we want to keep custom properties set in components.
-  // cursorEntity.value?.flushToDOM(true);
+  cursorEntity.value?.flushToDOM(true); // we need to flush to dom in order to keep component states (scale etc.)
   const cursorPos = movedObjectsRoot.object3D.getWorldPosition(new THREE.Vector3());
   const cursorRot = movedObjectsRoot.object3D.getWorldQuaternion(new THREE.Quaternion());
 
@@ -77,6 +75,7 @@ function createCursorChild(type: placeableAssetTypes, url: string) {
   const newEntity = document.createElement(type)
   if (type === 'a-image') {
     newEntity.setAttribute('src', url);
+    newEntity.setAttribute('scale', '1 -1 1');
   } else {
     newEntity.setAttribute('color', 'teal');
   }
