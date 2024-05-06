@@ -7,9 +7,9 @@ import { type DetailEvent, THREE, type Entity, type Scene } from 'aframe';
 // console.log(AFRAME.utils);
 
 function arrToCoordString(arr: Array<unknown>) {
-  console.log(arr);
+  // console.log(arr);
   const constructedString = arr.join(' ');
-  console.log(constructedString);
+  // console.log(constructedString);
   return constructedString;
 }
 const sceneTag = ref<Scene>();
@@ -19,24 +19,58 @@ function placeCursor(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   const cursor = cursorEntity.value;
   // console.log(evt.detail.intersection.point);
   if (!cursor) return;
-  const newPos = evt.detail.intersection.point.clone();
-  // cursor.object3D.position.set(...evt.detail.intersection.point.toArray());
-  const normal = evt.detail.intersection.normal;
-  if (!normal) { console.error('no normal vector in intersection object'); return; }
-  const fromVector = new THREE.Vector3(0, 0, 1);
-  const newRotation = new THREE.Quaternion();
-  newRotation.setFromUnitVectors(fromVector, normal);
+  const transform = intersectionToTransform(evt.detail.intersection);
+  if (!transform) return;
+  cursor.object3D.position.set(...transform.position);
+  const quat = new THREE.Quaternion().fromArray(transform.rotation);
+  const aframeRotation = quaternionToAframeRotation(quat);
+  cursor.setAttribute('rotation', arrToCoordString(aframeRotation));
+  // cursor.object3D.rotation.setFromQuaternion(quat);
+}
 
-  newPos.add(normal.setLength(0.05));
-  cursor.object3D.rotation.reorder('YXZ');
-  cursor.object3D.position.set(...newPos.toArray());
-  cursor.object3D.rotation.setFromQuaternion(newRotation);
-  cursor.object3D.rotation.z = 0;
+type Transform = {
+  position: THREE.Vector3Tuple,
+  rotation: THREE.Vector4Tuple,
+}
+function intersectionToTransform(intersection: THREE.Intersection, normalOffset: number = 0.05) {
+  const position = intersection.point.clone();
+  const rotation = new THREE.Quaternion();
+  const normal = intersection.normal;
+  if (!normal) { console.error('no normal vector in intersection object'); return; }
+  //Rotation part
+  const fromVector = new THREE.Vector3(0, 0, 1);
+  rotation.setFromUnitVectors(fromVector, normal);
+  const euler = new THREE.Euler().reorder('YXZ').setFromQuaternion(rotation);
+  euler.z = 0;
+  const quat = new THREE.Quaternion().setFromEuler(euler);
+
+  // Position part
+  position.add(normal.clone().setLength(normalOffset));
+  position.set(...position.toArray());
+  return {
+    position: position.toArray(),
+    rotation: quat.toArray() as THREE.Vector4Tuple,
+    // rotation: rotation.toArray() as THREE.Vector4Tuple,
+  }
+}
+
+function threeRotationToAframeRotation(threeRotation: THREE.Vector3Tuple): THREE.Vector3Tuple {
+  return [
+    THREE.MathUtils.radToDeg(threeRotation[0]),
+    THREE.MathUtils.radToDeg(threeRotation[1]),
+    THREE.MathUtils.radToDeg(threeRotation[2]),
+  ]
+}
+
+function quaternionToAframeRotation(quaternion: THREE.Quaternion): THREE.Vector3Tuple {
+  const euler = new THREE.Euler().reorder('YXZ').setFromQuaternion(quaternion);
+  const arr = euler.toArray() as THREE.Vector3Tuple;
+  return threeRotationToAframeRotation(arr);
 }
 
 function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   console.log('click!', evt);
-  placeMovedObject();
+  placeMovedObject(evt.detail.intersection);
   return;
 }
 
@@ -46,6 +80,7 @@ type PlaceableObject = { type: placeableAssetTypes, src: string };
 type PlacedObjectList = Array<PlaceableObject & { position: THREE.Vector3Tuple, rotation: THREE.Vector3Tuple }>
 
 const currentlyMovedObject = shallowRef<PlaceableObject | undefined>();
+const currentlyMovedEntity = ref<Entity | null>(null);
 const placedObjects = shallowReactive<PlacedObjectList>([
   // { type: 'a-image', src: '/photos/joey-chacon-edbYu4vxXww-unsplash.jpg', position: [0, 0, 0], rotation: [0, 0, 0] }
 ]);
@@ -54,21 +89,32 @@ const placedObjects = shallowReactive<PlacedObjectList>([
 const placedObjectsEntity = ref<Entity>();
 // NOTE: aframe is acting a bit peculiar, in where it's not possible to simply reparent a DOM entity.
 // We need to clone it in order to make aframe pickup that it should be included in the scene
-function placeMovedObject() {
+function placeMovedObject(intersection: THREE.Intersection) {
   if (!currentlyMovedObject.value) return;
-  const cursor = cursorEntity.value;
-  if (!cursor) return;
-  const cursorPos = cursor.object3D.getWorldPosition(new THREE.Vector3());
-  const cursorRot = new THREE.Quaternion();
-  cursor.object3D.getWorldQuaternion(cursorRot);
-  // console.log(cursorRot);
-  const cursorEuler = new THREE.Euler().setFromQuaternion(cursorRot);
-  // console.log(cursorEuler);
-  const cursorRotVec3 = new THREE.Vector3().setFromEuler(cursorEuler);
-  const cursorRotEulerDeg = cursorRotVec3.toArray().map(THREE.MathUtils.radToDeg) as THREE.Vector3Tuple;
+  // const movedEntity = currentlyMovedEntity.value;
+  // if (!movedEntity) return;
+  const transform = intersectionToTransform(intersection);
+  if (!transform) return;
+  const quat = new THREE.Quaternion(...transform.rotation)
+  const rotation = quaternionToAframeRotation(quat);
+  const position = transform.position;
+  const { type, src } = currentlyMovedObject.value;
+  placedObjects.push({ type, src, rotation, position });
+
+  // const cursorPos = movedEntity.object3D.getWorldPosition(new THREE.Vector3());
+  // const cursorRot = new THREE.Quaternion();
+  // movedEntity.object3D.getWorldQuaternion(cursorRot);
+  // // console.log(cursorRot);
+  // const cursorEuler = new THREE.Euler().reorder('XYZ').setFromQuaternion(cursorRot);
+  // // console.log(cursorEuler);
+  // const cursorRotVec3 = new THREE.Vector3().setFromEuler(cursorEuler);
   // console.log(cursorRotVec3);
-  placedObjects.push({ ...currentlyMovedObject.value, position: cursorPos.toArray(), rotation: cursorRotEulerDeg })
-  currentlyMovedObject.value = undefined;
+  // // const cursorRotEulerDeg = cursorRotVec3.toArray().map(THREE.MathUtils.radToDeg) as THREE.Vector3Tuple;
+  // const cursorRotEulerDeg = threeRotationToAframeRotation(cursorRotVec3.toArray());
+  // console.log(cursorRotEulerDeg);
+  // // console.log(cursorRotVec3);
+  // placedObjects.push({ ...currentlyMovedObject.value, position: cursorPos.toArray(), rotation: cursorRotEulerDeg })
+  // currentlyMovedObject.value = undefined;
 
   // const ring = cursorEntity.value?.firstChild as Entity;
   // ring.object3D.visible = true;
@@ -157,13 +203,14 @@ function selectEntity(evt: CustomEvent) {
         :rotation="arrToCoordString(placedObject.rotation)" />
     </a-entity>
     <a-entity ref="cursorEntity">
-      <a-entity rotation="-90 90 0">
+      <a-entity rotation="0 0 0">
         <a-ring id="cursor-ring" color="teal" radius-outer="0.2" radius-inner="0.1" />
         <a-box id="cursor-box" color="blue" scale="0.04 0.1 0.01" />
-        <a-cone id="cursor-box" color="blue" scale="0.04 0.1 0.01" />
+        <a-cone id="cursor-box" position="0 0.1 0" color="blue" scale="0.1 0.1 0.1" radius-bottom="0.2" />
       </a-entity>
       <a-entity id="moved-objects">
-        <component v-if="currentlyMovedObject" :is="currentlyMovedObject.type" :src="currentlyMovedObject.src" />
+        <component ref="currentlyMovedEntity" v-if="currentlyMovedObject" :is="currentlyMovedObject.type"
+          :src="currentlyMovedObject.src" />
       </a-entity>
     </a-entity>
 
