@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowReactive, shallowRef } from 'vue';
+import { computed, ref, shallowReactive, shallowRef, watch } from 'vue';
 import sponzaUrl from '@/assets/sponza.glb?url'
 import { type DetailEvent, THREE, type Entity, type Scene } from 'aframe';
 
@@ -79,6 +79,9 @@ const currentlySelectedObjectId = ref<UUID | undefined>();
 const currentlyMovedEntity = ref<Entity | null>(null);
 const placedObjects = shallowReactive<PlacedObjectList>([
 ]);
+const editedObject = computed(() => {
+  return placedObjects.find(obj => obj.uuid === currentlySelectedObjectId.value)
+})
 
 
 const placedObjectsEntity = ref<Entity>();
@@ -104,11 +107,39 @@ function createPlaceableObject(type: placeableAssetTypes, src: string) {
   currentlyMovedObject.value = newPlaceableObject
 }
 
+function repositionSelectedObject() {
+  const idx = placedObjects.findIndex(obj => obj.uuid === editedObject.value?.uuid);
+  if (idx < 0) return;
+  const [obj] = placedObjects.splice(idx, 1);
+  currentlyMovedObject.value = obj;
+}
+
 function selectEntity(uuid: UUID, evt: DetailEvent<{ cursorEl: Entity, intersection: THREE.Intersection, mouseEvent: MouseEvent }>) {
   console.log(uuid);
   console.log(evt);
   currentlySelectedObjectId.value = uuid;
+  // const obj = placedObjects.find(obj => obj.uuid === uuid);
+  // const rot = obj?.rotation;
+  const rot = editedObject.value?.rotation;
+  if (!rot) {
+    console.log(rot);
+    return;
+  };
+  yaw.value = rot[1];
+  pitch.value = rot[0];
+  roll.value = rot[2];
 }
+const yaw = ref<number>(0);
+const pitch = ref<number>(0);
+const roll = ref<number>(0);
+
+watch([yaw, pitch, roll], ([newYaw, newPitch, newRoll]) => {
+  const obj = placedObjects.find(obj => obj.uuid === currentlySelectedObjectId.value)
+  if (!obj) {
+    return;
+  };
+  obj.rotation = [newPitch, newYaw, newRoll];
+})
 
 </script>
 
@@ -116,6 +147,12 @@ function selectEntity(uuid: UUID, evt: DetailEvent<{ cursorEl: Entity, intersect
   <div id="ui-overlay" class="absolute z-50 left-5 top-5">
     <button class="p-3 text-white rounded-md cursor-pointer bg-zinc-800"
       @click="createPlaceableObject('a-image', '/photos/joey-chacon-edbYu4vxXww-unsplash.jpg')"> Hello</button>
+    <div v-if="currentlySelectedObjectId">
+      <input type="range" min="-180" max="180" v-model.number="yaw">
+      <input type="range" min="-90" max="90" v-model.number="pitch">
+      <input type="range" min="-180" max="180" v-model.number="roll">
+      <button @click="repositionSelectedObject">Place again</button>
+    </div>
   </div>
   <a-scene ref="sceneTag" cursor="rayOrigin: mouse;" raycaster="objects: .raycastable" raycaster-update
     @raycast-update="placeCursor">
@@ -130,8 +167,8 @@ function selectEntity(uuid: UUID, evt: DetailEvent<{ cursorEl: Entity, intersect
     <a-entity ref="placedObjectsEntity">
       <component v-for="placedObject in placedObjects" :key="placedObject.type"
         @click="selectEntity(placedObject.uuid, $event)" class="selectable raycastable"
-        :box-helper="`enabled: ${currentlySelectedObjectId === placedObject.uuid}`" :is="placedObject.type"
-        :src="placedObject.src" :position="arrToCoordString(placedObject.position)"
+        :box-helper="`enabled: ${currentlySelectedObjectId === placedObject.uuid}; color: #ff00ff;`"
+        :is="placedObject.type" :src="placedObject.src" :position="arrToCoordString(placedObject.position)"
         :rotation="arrToCoordString(placedObject.rotation)" />
     </a-entity>
     <a-entity ref="cursorEntity">
