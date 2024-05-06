@@ -37,6 +37,11 @@ const router = createRouter({
       name: 'avatar',
       component: () => import('@/views/Avatar.vue')
     },
+    {
+      path: '/laser',
+      name: 'laser',
+      component: () => import('@/views/LaserScene.vue')
+    },
   ]
 })
 

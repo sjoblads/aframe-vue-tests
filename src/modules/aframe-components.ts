@@ -4,6 +4,7 @@ import 'aframe'
 import modelColor from './aframe-components/model-color';
 import raycasterListen from "./aframe-components/raycaster-listen";
 import raycasterUpdate from "./aframe-components/raycaster-update";
+import laserPointer from "./aframe-components/laser-pointer";
 // import 'aframe-troika-text'
 // import 'https://github.com/PyryM/aframe-pano-portal/raw/master/dist/aframe-pano-portal.min.js'
 // import './aframe-pano-portal';
@@ -19,6 +20,7 @@ export default async function registerComponents() {
   makeGltfSwappable();
   raycasterListen();
   raycasterUpdate();
+  laserPointer();
   // gltfShadow();
   // const troika = await import('./aframe-components/troika-text');
   // troika.default();
