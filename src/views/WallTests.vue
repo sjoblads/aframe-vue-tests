@@ -2,14 +2,10 @@
 import { ref, shallowReactive, shallowRef } from 'vue';
 import sponzaUrl from '@/assets/sponza.glb?url'
 import { type DetailEvent, THREE, type Entity, type Scene } from 'aframe';
-
-// console.log(AFRAME);
-// console.log(AFRAME.utils);
+import TheWelcome from '@/components/TheWelcome.vue';
 
 function arrToCoordString(arr: Array<unknown>) {
-  // console.log(arr);
   const constructedString = arr.join(' ');
-  // console.log(constructedString);
   return constructedString;
 }
 const sceneTag = ref<Scene>();
@@ -17,21 +13,14 @@ const sceneTag = ref<Scene>();
 const cursorEntity = ref<Entity>();
 function placeCursor(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   const cursor = cursorEntity.value;
-  // console.log(evt.detail.intersection.point);
   if (!cursor) return;
   const transform = intersectionToTransform(evt.detail.intersection);
   if (!transform) return;
   cursor.object3D.position.set(...transform.position);
   const quat = new THREE.Quaternion().fromArray(transform.rotation);
-  const aframeRotation = quaternionToAframeRotation(quat);
-  cursor.setAttribute('rotation', arrToCoordString(aframeRotation));
-  // cursor.object3D.rotation.setFromQuaternion(quat);
+  cursor.object3D.rotation.setFromQuaternion(quat);
 }
 
-type Transform = {
-  position: THREE.Vector3Tuple,
-  rotation: THREE.Vector4Tuple,
-}
 function intersectionToTransform(intersection: THREE.Intersection, normalOffset: number = 0.05) {
   const position = intersection.point.clone();
   const rotation = new THREE.Quaternion();
@@ -39,9 +28,23 @@ function intersectionToTransform(intersection: THREE.Intersection, normalOffset:
   if (!normal) { console.error('no normal vector in intersection object'); return; }
   //Rotation part
   const fromVector = new THREE.Vector3(0, 0, 1);
+  // fromVector.setY(0);
+  // fromVector.normalize().negate();
   rotation.setFromUnitVectors(fromVector, normal);
   const euler = new THREE.Euler().reorder('YXZ').setFromQuaternion(rotation);
+  // console.log(euler.toArray());
   euler.z = 0;
+  // if flat placement, align with camera direction
+  if (euler.x < (-Math.PI / 2 + 0.01)) {// && euler.x > (-Math.PI / 4 - 0.01)) {
+    // console.log('floor placement');
+    const quat = new THREE.Quaternion();
+    // const cameraRot = AFRAME.AScene.camera.getWorldQuaternion(quat)
+    const cameraRot = sceneTag.value!.camera.getWorldQuaternion(quat);
+    const eul = new THREE.Euler().reorder('YXZ').setFromQuaternion(cameraRot);
+    // console.log(cameraYaw);
+    // console.log(eul);
+    euler.y = eul.y;
+  }
   const quat = new THREE.Quaternion().setFromEuler(euler);
 
   // Position part
@@ -74,7 +77,6 @@ function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   return;
 }
 
-// type vec3Array = [number, number, number];
 type placeableAssetTypes = `a-${'image' | 'sphere'}`;
 type PlaceableObject = { type: placeableAssetTypes, src: string };
 type PlacedObjectList = Array<PlaceableObject & { position: THREE.Vector3Tuple, rotation: THREE.Vector3Tuple }>
@@ -82,17 +84,12 @@ type PlacedObjectList = Array<PlaceableObject & { position: THREE.Vector3Tuple, 
 const currentlyMovedObject = shallowRef<PlaceableObject | undefined>();
 const currentlyMovedEntity = ref<Entity | null>(null);
 const placedObjects = shallowReactive<PlacedObjectList>([
-  // { type: 'a-image', src: '/photos/joey-chacon-edbYu4vxXww-unsplash.jpg', position: [0, 0, 0], rotation: [0, 0, 0] }
 ]);
 
 
 const placedObjectsEntity = ref<Entity>();
-// NOTE: aframe is acting a bit peculiar, in where it's not possible to simply reparent a DOM entity.
-// We need to clone it in order to make aframe pickup that it should be included in the scene
 function placeMovedObject(intersection: THREE.Intersection) {
   if (!currentlyMovedObject.value) return;
-  // const movedEntity = currentlyMovedEntity.value;
-  // if (!movedEntity) return;
   const transform = intersectionToTransform(intersection);
   if (!transform) return;
   const quat = new THREE.Quaternion(...transform.rotation)
@@ -100,52 +97,7 @@ function placeMovedObject(intersection: THREE.Intersection) {
   const position = transform.position;
   const { type, src } = currentlyMovedObject.value;
   placedObjects.push({ type, src, rotation, position });
-
-  // const cursorPos = movedEntity.object3D.getWorldPosition(new THREE.Vector3());
-  // const cursorRot = new THREE.Quaternion();
-  // movedEntity.object3D.getWorldQuaternion(cursorRot);
-  // // console.log(cursorRot);
-  // const cursorEuler = new THREE.Euler().reorder('XYZ').setFromQuaternion(cursorRot);
-  // // console.log(cursorEuler);
-  // const cursorRotVec3 = new THREE.Vector3().setFromEuler(cursorEuler);
-  // console.log(cursorRotVec3);
-  // // const cursorRotEulerDeg = cursorRotVec3.toArray().map(THREE.MathUtils.radToDeg) as THREE.Vector3Tuple;
-  // const cursorRotEulerDeg = threeRotationToAframeRotation(cursorRotVec3.toArray());
-  // console.log(cursorRotEulerDeg);
-  // // console.log(cursorRotVec3);
-  // placedObjects.push({ ...currentlyMovedObject.value, position: cursorPos.toArray(), rotation: cursorRotEulerDeg })
-  // currentlyMovedObject.value = undefined;
-
-  // const ring = cursorEntity.value?.firstChild as Entity;
-  // ring.object3D.visible = true;
-
-  // const movedObjectsRoot = cursorEntity.value?.lastChild as Entity | undefined | null;
-  // if (!movedObjectsRoot) {
-  //   console.warn('movedObjects was undefined');
-  //   return;
-  // }
-  // cursorEntity.value?.flushToDOM(true); // we need to flush to dom in order to keep component states (scale etc.)
-  // const cursorPos = movedObjectsRoot.object3D.getWorldPosition(new THREE.Vector3());
-  // const cursorRot = movedObjectsRoot.object3D.getWorldQuaternion(new THREE.Quaternion());
-
-  // const clone = movedObjectsRoot.cloneNode(true);
-  // const children = clone?.childNodes;
-  // movedObjectsRoot.replaceChildren()
-
-  // if (!children) {
-  //   console.warn('no children in cursor');
-  //   return;
-  // }
-  // children?.forEach(node => {
-  //   const e = node as Entity;
-  //   e.setAttribute('class', 'selectable');
-  //   e.object3D.position.add(cursorPos);
-  //   e.object3D.setRotationFromQuaternion(cursorRot);
-  // })
-  // placedObjectsEntity.value?.append(...children);
-
-  // const ring = cursorEntity.value?.firstChild as Entity;
-  // ring.object3D.visible = true;
+  currentlyMovedObject.value = undefined;
 }
 
 function createPlaceableObject(type: placeableAssetTypes, src: string) {
@@ -154,26 +106,6 @@ function createPlaceableObject(type: placeableAssetTypes, src: string) {
     type
   }
   currentlyMovedObject.value = newPlaceableObject
-
-  // const ring = cursorEntity.value?.firstChild as Entity;
-  // ring.object3D.visible = false;
-
-  // const objectContainer = cursorEntity.value?.lastChild as Entity;
-  // if (!objectContainer) {
-  //   console.warn('object root was undefined');
-  //   return;
-  // }
-  // // console.log(type, url);
-  // const newEntity = document.createElement(type)
-  // if (type === 'a-image') {
-  //   newEntity.setAttribute('src', src);
-  //   newEntity.setAttribute('scale', '1 -1 1');
-  //   newEntity.setAttribute('class', 'selectable')
-  //   // newEntity.setAttribute('onclick', 'selectEntity');
-  // } else {
-  //   newEntity.setAttribute('color', 'teal');
-  // }
-  // objectContainer.replaceChildren(newEntity);
 }
 
 function selectEntity(evt: CustomEvent) {
@@ -203,12 +135,12 @@ function selectEntity(evt: CustomEvent) {
         :rotation="arrToCoordString(placedObject.rotation)" />
     </a-entity>
     <a-entity ref="cursorEntity">
-      <a-entity rotation="0 0 0">
+      <a-entity :visible="!currentlyMovedObject" rotation="0 0 0">
         <a-ring id="cursor-ring" color="teal" radius-outer="0.2" radius-inner="0.1" />
         <a-box id="cursor-box" color="blue" scale="0.04 0.1 0.01" />
         <a-cone id="cursor-box" position="0 0.1 0" color="blue" scale="0.1 0.1 0.1" radius-bottom="0.2" />
       </a-entity>
-      <a-entity id="moved-objects">
+      <a-entity id="moved-object">
         <component ref="currentlyMovedEntity" v-if="currentlyMovedObject" :is="currentlyMovedObject.type"
           :src="currentlyMovedObject.src" />
       </a-entity>
