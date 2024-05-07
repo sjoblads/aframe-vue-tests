@@ -2,6 +2,8 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import type { Entity, Scene } from 'aframe';
 
+import skyImage from '@/assets/classroom.png';
+
 // import emojiSheetUrl from '@/assets/sprite-128.png';
 // import sponzaUrl from '@/assets/sponza.glb?url'
 // import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
@@ -62,6 +64,13 @@ function getScreen() {
     xr-mode-ui="enabled: true;">
     <a-assets @loaded="onAssetsLoaded" timeout="25000">
       <img id="portal-preview" src="@/assets/portal-screenshot.png">
+
+      <a-mixin id="text"
+          text="align: center; width: 2;
+               value: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam"
+      ></a-mixin>
+
+      
       <!-- <a-asset-item id="sponza" :src="sponzaUrl" /> -->
       <!-- <a-asset-item id="lamp" :src="lampUrl" /> -->
       <!-- <a-asset-item id="icon-font"
@@ -70,13 +79,17 @@ function getScreen() {
     <!-- <a-mixin id="emojimap" atlas-uvs="totalRows: 43; totalColumns: 43"
              :material="`src: ${emojiSheetUrl}; transparent: true; shader: flat;`"
              geometry="primitive: plane; width: 0.4; height: 0.4; buffer: true; skipCache: true" /> -->
+     
+     
 
     <a-entity @loaded="onRootLoaded">
+
       <a-camera wasd-controls="acceleration: 15;">
         <a-entity position="0.2 0 -1">
         </a-entity>
       </a-camera>
-      <a-sky color="skyblue"></a-sky>
+      <a-sky :src="skyImage"></a-sky>
+      <!--<a-sky color="skyblue"></a-sky> -->
       <!-- <a-gltf-model shadow src="#sponza" /> -->
       <!-- <a-gltf-model position="9 0 0" src="#lamp" /> -->
       <a-entity laser-controls="hand: left" raycaster="objects: .clickable">
@@ -92,6 +105,7 @@ function getScreen() {
         <!-- <a-box position="0 0 -1" /> -->
       </a-entity>
       <a-entity position="0 1.5 -3">
+        
         <!-- <a-light type="ambient" color="#BBB"></a-light> -->
         <!-- Red directional light shining from the top left. -->
         <!-- <a-light color="#fff" intensity="0.6" position="-0.5 1 1"></a-light> -->
@@ -106,7 +120,39 @@ function getScreen() {
         <!-- <a-link scale="" class="clickable" image="#portal-preview" position="0 0 0" href="/vr2" title="Go to VR2">
         </a-link> -->
         <a-sphere :color="currentColor" scale="0.4 .4 .4" class="clickable" @click="$router.push('/vr2')"
-          position="2 0 0"></a-sphere>
+        position="2 0 0"></a-sphere>
+        <a-box color="#B22222" scale="0.4 0.4 .4" position="-2 .8 0"></a-box>
+
+        <a-box color="#B22222" opacity="0.4" scale="0.4 0.4 .4" position="-1 .5 0">
+         
+        </a-box>
+
+        <a-text mixin="text" color="red" position="3 -2 0" wrap-count="20"></a-text>
+      <a-text mixin="text" color="red" position="-3 -2 0" wrap-count="20"></a-text>
+
+        
+
+        
+      <a-box opacity="0.5" color="blue" width="2.7" height="2.7" depth="0"
+             position="0 -3 -1.5">
+
+        <!-- Reference marks, so we can see where the label is aligning.  -->
+        <a-entity mixin="marker" position="-0.5 0 0"></a-entity>
+        
+
+        <!--
+          Label the top of the box,
+          positioning the entity at the center of the top,
+          and using baseline "top" to align top of text with entity position.
+          NOTE: attribute collision makes the text property text-text
+        -->
+        <a-text color="white" align="center" baseline="top" width="5.4" position="0 0.5 0"
+                font="aileronsemibold"
+                value="Top of box\n(even when multi-line)\naileronsemibold font" ></a-text>
+      </a-box>
+
+
+        
         <!-- <a-entity link="href: /vr2; title: liiink; image: #portal-preview; borderColor: #0ff; visualAspectEnabled: true;"
                   position="0 0 0" /> -->
         <a-entity
@@ -127,3 +173,4 @@ function getScreen() {
     </a-entity>
   </a-scene>
 </template>
+
