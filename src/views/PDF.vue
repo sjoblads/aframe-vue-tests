@@ -17,6 +17,8 @@ useScriptTag('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs',
   loadedDoc = await pdfDoc.promise
   numPages = loadedDoc.numPages;
   console.log(numPages);
+  await renderPage();
+  pdfInVrTag.value?.emit('canvasReady') 
 
 }, { type: 'module' })
 
@@ -29,13 +31,19 @@ let numPages = 0;
 
 let loadedDoc: undefined | PDFDocumentProxy;
 
+function nextPage() {
+  activePage.value = (activePage.value + 1) % numPages;
+  renderPage(activePage.value + 1);
+}
+
 onBeforeMount(async () => {
 
   // const pdfjs = (await import('pdfjs-dist')).default;
   // pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc
 })
 
-async function renderPage(pageIdx: number = 0) {
+async function renderPage(pageIdx: number = 1) {
+  console.log(pageIdx);
   if (!loadedDoc || !pdfCanvasTag.value) return;
   const canvas = pdfCanvasTag.value
   const ctx = canvas.getContext('2d');
@@ -51,18 +59,17 @@ async function renderPage(pageIdx: number = 0) {
   if (pdfInVrTag.value) {
     // console.log('updating material');
     pdfInVrTag.value.emit('update');
-    pdfInVrTag.value.emit('canvasReady');
   }
 }
 
-onMounted(() => renderPage());
+onMounted(async () => { });
 
 
 
 </script>
 
 <template>
-  <button @click="activePage = (activePage + 1) % numPages; renderPage(activePage)">next</button> {{ activePage }}
+  <button @click="nextPage">next</button> {{ activePage }}
   <a-scene embedded class="w-96 h-96 bg-zinc-400">
     <a-assets>
 
