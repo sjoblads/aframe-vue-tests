@@ -21,8 +21,10 @@ export default function () {
       if (this.el.components.raycaster.intersectedEls.length > 0) {
         const intersectedEl = this.el.components.raycaster.intersectedEls[0] as Entity | undefined;
         if (intersectedEl) {
+          const threeRaycaster = this.el.components.raycaster.raycaster as THREE.Raycaster;
           const intersection = this.el.components.raycaster.getIntersection(intersectedEl) as THREE.Intersection;
-          this.el.emit('raycast-update', { intersection });
+          const rayDirection = threeRaycaster.ray.direction;
+          this.el.emit('raycast-update', { intersection, rayDirection });
         }
       }
       // if (!this.raycaster) { return; }  // Not intersecting.
