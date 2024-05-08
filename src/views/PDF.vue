@@ -51,6 +51,7 @@ async function renderPage(pageIdx: number = 0) {
   if (pdfInVrTag.value) {
     // console.log('updating material');
     pdfInVrTag.value.emit('update');
+    pdfInVrTag.value.emit('canvasReady');
   }
 }
 
@@ -65,11 +66,10 @@ onMounted(() => renderPage());
   <a-scene embedded class="w-96 h-96 bg-zinc-400">
     <a-assets>
 
-      <canvas ref="pdfCanvasTag" width="0" height="0" class="bg-zinc-600" id="pdf-target"></canvas>
+      <canvas ref="pdfCanvasTag" class="bg-zinc-600" id="pdf-target"></canvas>
     </a-assets>
     <a-box color="red" position="-1 1 -3" />
-    <a-entity ref="pdfInVrTag" canvas-material="autoUpdate: false; src: #pdf-target" geometry="primitive: plane;"
-      position="1 1.6 -2" />
+    <a-entity ref="pdfInVrTag" canvas-material="autoUpdate: false; src: #pdf-target" position="1 1.6 -2" />
 
   </a-scene>
 
