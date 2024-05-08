@@ -6,6 +6,7 @@ import raycasterListen from "./aframe-components/raycaster-listen";
 import raycasterUpdate from "./aframe-components/raycaster-update";
 import boxHelper from "./aframe-components/box-helper";
 import laserPointer from "./aframe-components/laser-pointer";
+import canvasMaterial from "./aframe-components/canvas-material";
 
 // import 'aframe-troika-text'
 // import 'https://github.com/PyryM/aframe-pano-portal/raw/master/dist/aframe-pano-portal.min.js'
@@ -24,6 +25,7 @@ export default async function registerComponents() {
   raycasterUpdate();
   boxHelper();
   laserPointer();
+  canvasMaterial();
   // gltfShadow();
   // const troika = await import('./aframe-components/troika-text');
   // troika.default();
