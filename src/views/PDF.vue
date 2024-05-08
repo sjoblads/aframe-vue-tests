@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
 // import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
 import { useScriptTag } from '@vueuse/core';
+import type { Entity } from 'aframe';
 
 useScriptTag('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs', async el => {
   console.log('pdfjs loaded');
@@ -15,13 +16,15 @@ useScriptTag('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs',
   const pdfDoc = pdfjsLib.getDocument('/documents/compressed.tracemonkey-pldi-09.pdf') as PDFDocumentLoadingTask;
   loadedDoc = await pdfDoc.promise
   numPages = loadedDoc.numPages;
+  console.log(numPages);
 
 }, { type: 'module' })
 
 
 const pdfCanvasTag = ref<HTMLCanvasElement>();
+const pdfInVrTag = ref<Entity>();
 
-const activePage = ref(0);
+const activePage = ref(1);
 let numPages = 0;
 
 let loadedDoc: undefined | PDFDocumentProxy;
@@ -39,12 +42,19 @@ async function renderPage(pageIdx: number = 0) {
   if (!ctx) return;
   const page = await loadedDoc.getPage(pageIdx)
   const vp = page.getViewport({ scale: 2, })
-  console.log(vp);
+  // console.log(vp);
   canvas.width = vp.width;
   canvas.height = vp.height;
   let renderCtx = { canvasContext: ctx, viewport: vp };
   await page.render(renderCtx).promise;
+  console.log('rendered');
+  if (pdfInVrTag.value) {
+    // console.log('updating material');
+    pdfInVrTag.value.emit('update');
+  }
 }
+
+onMounted(() => renderPage());
 
 
 
@@ -53,11 +63,15 @@ async function renderPage(pageIdx: number = 0) {
 <template>
   <button @click="activePage = (activePage + 1) % numPages; renderPage(activePage)">next</button> {{ activePage }}
   <a-scene embedded class="w-96 h-96 bg-zinc-400">
-    <a-box color="red" position="0 1 -3" />
-    <a-entity canvas-material="src: #pdf-target; autoUpdate: true;" geometry="primitive: plane;" position="1 1 -4" />
+    <a-assets>
+
+      <canvas ref="pdfCanvasTag" width="0" height="0" class="bg-zinc-600" id="pdf-target"></canvas>
+    </a-assets>
+    <a-box color="red" position="-1 1 -3" />
+    <a-entity ref="pdfInVrTag" canvas-material="autoUpdate: false; src: #pdf-target" geometry="primitive: plane;"
+      position="1 1.6 -2" />
 
   </a-scene>
-  <canvas class="bg-zinc-600" ref="pdfCanvasTag" id="pdf-target"></canvas>
 
 
 </template>
