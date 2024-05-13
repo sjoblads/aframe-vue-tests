@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref, shallowRef, watch, type Ref } from 'vue';
+import { computed, onBeforeMount, onMounted, ref, shallowRef, watch, type Ref } from 'vue';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
 
 import { useScriptTag } from '@vueuse/core';
@@ -22,6 +22,7 @@ const props = defineProps<{
   currentPage: number,
 }>()
 
+
 const uuid = crypto.randomUUID().substring(0, 8);;
 const canvasSelector = `pdf-${uuid}`;
 
@@ -29,9 +30,11 @@ const pdfCanvasTag = ref<HTMLCanvasElement>();
 const pdfEntityTag = ref<Entity>();
 
 // const activePage = ref(1);
-let numPages = 0;
+let numPages = computed(() => loadedDoc.value?.numPages);
 
 let loadedDoc = shallowRef<PDFDocumentProxy>();
+
+defineExpose({ numPages })
 
 // function nextPage() {
 //   activePage.value = (activePage.value + 1) % numPages;
@@ -46,26 +49,27 @@ async function loadDocument(src: string) {
   const { pdfjsLib } = globalThis;
   const pdfDoc = pdfjsLib.getDocument(src) as PDFDocumentLoadingTask;
   loadedDoc.value = await pdfDoc.promise
-  numPages = loadedDoc.value.numPages;
-  console.log(numPages);
+  // numPages.value = loadedDoc.value.numPages;
+  // console.log(numPages);
   await renderPage(props.currentPage);
-  pdfEntityTag.value?.emit('canvasReady');
+  // pdfEntityTag.value?.emit('canvasReady');
 }
 
 async function renderPage(pageIdx: number = 1) {
-  console.log(pageIdx);
-  if (!loadedDoc.value || !pdfCanvasTag.value) return;
+  // console.log(pageIdx);
+  if (!loadedDoc.value || !pdfCanvasTag.value || pageIdx == 0) return;
   const canvas = pdfCanvasTag.value
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const page = await loadedDoc.value.getPage(pageIdx)
+  const wrappedPageNr = ((pageIdx - 1) % loadedDoc.value.numPages) + 1;
+  const page = await loadedDoc.value.getPage(wrappedPageNr)
   const vp = page.getViewport({ scale: 4, })
-  // console.log(vp);
+  // console.log(vp.width, vp.height);
   canvas.width = vp.width;
   canvas.height = vp.height;
   let renderCtx = { canvasContext: ctx, viewport: vp };
   await page.render(renderCtx).promise;
-  console.log('rendered');
+  // console.log('rendered');
   pdfEntityTag.value?.emit('update');
 }
 
@@ -75,7 +79,7 @@ async function renderPage(pageIdx: number = 1) {
   <a-entity>
     <a-entity ref="pdfEntityTag" :canvas-material="`autoUpdate: false; src: #${canvasSelector};`" />
     <Teleport to="body">
-      <canvas :id="canvasSelector" style="display: block;" ref="pdfCanvasTag"></canvas>
+      <canvas :id="canvasSelector" style="display: none;" ref="pdfCanvasTag"></canvas>
     </Teleport>
   </a-entity>
 </template>

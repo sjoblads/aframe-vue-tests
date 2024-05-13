@@ -1,80 +1,41 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from 'vue';
-import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
+import { computed, onBeforeMount, onMounted, ref } from 'vue';
 import PdfEntity from '@/components/PdfEntity.vue';
 
-import { useScriptTag } from '@vueuse/core';
-import type { Entity } from 'aframe';
-
-// useScriptTag('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs', async el => {
-//   console.log('pdfjs loaded');
-//   // @ts-ignore
-//   const { pdfjsLib } = globalThis;
-
-//   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.mjs'
-//   // const pdfDoc = pdfjsLib.getDocument('/documents/sample.pdf') as PDFDocumentLoadingTask;
-//   const pdfDoc = pdfjsLib.getDocument('/documents/compressed.tracemonkey-pldi-09.pdf') as PDFDocumentLoadingTask;
-//   loadedDoc = await pdfDoc.promise
-//   numPages = loadedDoc.numPages;
-//   console.log(numPages);
-//   await renderPage();
-//   pdfInVrTag.value?.emit('canvasReady') 
-
-// }, { type: 'module' })
-
-
-const pdfCanvasTag = ref<HTMLCanvasElement>();
-const pdfInVrTag = ref<Entity>();
-
 const activePage = ref(1);
-let numPages = 0;
 
-let loadedDoc: undefined | PDFDocumentProxy;
+const pdfEntities = ref<InstanceType<typeof PdfEntity>[]>()
+const nrPages = computed(() => {
+  return pdfEntities.value?.map(entity => entity.numPages);
+})
+const pdfs = ref<{ src: string, position: string, currentPage: number }[]>([
+  { src: '/documents/compressed.tracemonkey-pldi-09.pdf', position: '0 1.7 0', currentPage: 0 },
+  { src: '/documents/smallpdf_sample.pdf', position: '4 2 0', currentPage: 0 },
+]);
 
-// function nextPage() {
-//   activePage.value = (activePage.value + 1) % numPages;
-//   renderPage(activePage.value + 1);
-// }
-
-// async function renderPage(pageIdx: number = 1) {
-//   console.log(pageIdx);
-//   if (!loadedDoc || !pdfCanvasTag.value) return;
-//   const canvas = pdfCanvasTag.value
-//   const ctx = canvas.getContext('2d');
-//   if (!ctx) return;
-//   const page = await loadedDoc.getPage(pageIdx)
-//   const vp = page.getViewport({ scale: 2, })
-//   // console.log(vp);
-//   canvas.width = vp.width;
-//   canvas.height = vp.height;
-//   let renderCtx = { canvasContext: ctx, viewport: vp };
-//   await page.render(renderCtx).promise;
-//   console.log('rendered');
-//   if (pdfInVrTag.value) {
-//     // console.log('updating material');
-//     pdfInVrTag.value.emit('update');
-//   }
-// }
+function nextPages() {
+  // if(!nrPages.value) return;
+  pdfs.value.forEach((pdf, idx) => { pdf.currentPage = (pdf.currentPage + 1) % nrPages.value[idx] })
+}
 
 </script>
 
 <template>
-  <button @click="activePage++">next</button> {{ activePage }}
-  <a-scene embedded class="w-96 h-96 bg-zinc-400">
-    <a-assets>
+  <div class="absolute z-50 left-5 top-5">
 
-      <!-- <canvas ref="pdfCanvasTag" class="bg-zinc-600" id="pdf-target"></canvas> -->
+    <button @click="nextPages">next</button> {{ activePage }}
+  </div>
+  <a-scene background="color: lightskyblue">
+    <a-assets>
     </a-assets>
     <a-box color="red" position="-1 1 -3" />
-    <a-entity>
-      <!-- <a-entity ref="pdfInVrTag" canvas-material="autoUpdate: false; src: #pdf-target" /> -->
+    <a-entity position="0 0 -4">
+
+      <PdfEntity v-for="pdf in pdfs" :key="pdf.src" ref="pdfEntities" :src="pdf.src" :current-page="pdf.currentPage + 1"
+        scale="2 2 1" :position="pdf.position" />
+      <!-- <PdfEntity src="/documents/sample.pdf" :current-page="activePage" position="4 2 0" scale="4 4 1" /> -->
     </a-entity>
-    <PdfEntity src="/documents/compressed.tracemonkey-pldi-09.pdf" :current-page="activePage" scale="2 2 1"
-      position="0 1.7 0" />
-    <PdfEntity src="/documents/sample.pdf" :current-page="activePage" position="3 0 0" scale="4 4 1" />
 
   </a-scene>
-  <!-- <PdfEntity id="pdf-target" src="/documents/compressed.tracemonkey-pldi-09.pdf" :current-page="activePage"
-    :pdf-entity-ref="pdfInVrTag" /> -->
 
 </template>
