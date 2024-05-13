@@ -1,10 +1,13 @@
-import type { DetailEvent, Entity, THREE } from 'aframe';
+import { THREE, type DetailEvent, type Entity } from 'aframe';
 
 export default function () {
 
   AFRAME.registerComponent('raycaster-update', {
     // raycaster: null as null | Entity,
     dependencies: ['raycaster'],
+    fields: {
+      prev: new THREE.Vector3(),
+    },
     init: function () {
       console.log('INIT raycaster-update');
       this.tick = AFRAME.utils.throttleTick(this.tick!, 10, this);
@@ -22,7 +25,10 @@ export default function () {
         const intersectedEl = this.el.components.raycaster.intersectedEls[0] as Entity | undefined;
         if (intersectedEl) {
           const intersection = this.el.components.raycaster.getIntersection(intersectedEl) as THREE.Intersection;
-          this.el.emit('raycast-update', { intersection });
+          if(!intersection.point.equals(this.fields.prev)){
+            this.el.emit('raycast-update', { intersection });
+          }
+          this.fields.prev = intersection.point
         }
       }
       // if (!this.raycaster) { return; }  // Not intersecting.
@@ -37,4 +43,4 @@ export default function () {
       // this.prev = intersection.point;
     },
   });
-};
+}

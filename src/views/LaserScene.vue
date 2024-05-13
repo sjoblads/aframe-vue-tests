@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { type Ref, ref } from 'vue';
 import sponzaUrl from '@/assets/sponza.glb?url'
-import { type DetailEvent, THREE, type Entity, type Scene } from 'aframe';
+import { type DetailEvent, THREE, type Scene } from 'aframe';
 
-import LaserPointer from '@/components/LaserPointer.vue'
+import LaserPointerSelf from '@/components/LaserPointerSelf.vue'
+import LaserPointerOther from '@/components/LaserPointerOther.vue'
 
 const sceneTag = ref<Scene>();
 const isVR = ref(false)
 const laserActive = ref(false)
 const cursorIntersection : Ref<THREE.Vector3> = ref(new THREE.Vector3())
+const otherPosition : Ref<THREE.Vector3 | undefined> = ref(undefined)
 
 function setIntersection(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
   cursorIntersection.value = evt.detail.intersection.point
@@ -24,6 +26,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+function laserUpdate(active: boolean, position?: THREE.Vector3){
+  console.log("Laser update", {active, position})
+  otherPosition.value = active ? position : undefined
+}
+
 </script>
 
 <template>
@@ -34,7 +41,13 @@ window.addEventListener("keydown", (event) => {
       <a-asset-item id="sponza" :src="sponzaUrl"></a-asset-item>
     </a-assets>
     
-    <LaserPointer :active="laserActive" :intersection="cursorIntersection" />
+    <!-- Raycast and emit intersection points for own cursor / hand control -->
+    <!-- Render as a white (inactive) or green (active) cube -->
+    <LaserPointerSelf :active="laserActive" :intersection="cursorIntersection" @update="laserUpdate"/>
+
+    <!-- Show active laser pointers from other users -->
+    <!-- Render as a red sphere -->
+    <LaserPointerOther :point="otherPosition" @update="laserUpdate"/>
 
     <a-entity v-if="isVR">
       <a-entity laser-controls="hand: right" raycaster="objects: .clickable" raycaster-update @raycast-update="setIntersection"></a-entity>
