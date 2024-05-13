@@ -34,14 +34,17 @@ export default function () {
     },
     update: function (_oldData) {
       console.log(this.data.src);
+      // this.updateMaterial();
     },
     updateMaterial: function () {
+
+      console.log('update Material triggered!');
       // if (!this.canvasReady) return;
       let el = this.el;
       const canvas = this.data.src as HTMLCanvasElement;
       if (this.prevSize!.width !== canvas.width || this.prevSize!.height !== canvas.height) {
         // console.log(this.prevSize);
-        // console.log(canvas, 'canvas resized. need to flush material to avoid texture error');
+        console.log(canvas, 'canvas resized. need to flush material to avoid texture error');
         const ratio = canvas.height / canvas.width;
         // console.log(ratio);
         this.el.setAttribute('geometry', { primitive: 'plane', width: 1, height: ratio });
@@ -54,7 +57,7 @@ export default function () {
         console.error('no material map. exiting');
         return;
       }
-      // console.log('marking material for update');
+      console.log('marking material for update');
       material.map.needsUpdate = true;
       this.prevSize!.width = canvas.width;
       this.prevSize!.height = canvas.height;
