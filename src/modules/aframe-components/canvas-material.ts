@@ -13,15 +13,16 @@ export default function () {
         console.log('canvas ready triggered');
         this.canvasReady = true;
         const canvas = this.data.src as HTMLCanvasElement;
-        const ratio = canvas.width / canvas.height;
-        this.el.setAttribute('geometry', { primitive: 'plane', width: ratio, height: 1 });
+        const ratio = canvas.height / canvas.width;
+        // console.log(ratio);
+        this.el.setAttribute('geometry', { primitive: 'plane', width: 1, height: ratio });
         this.el.setAttribute('material', { src: this.data.src });
         // const geometry = this.el.components.geometry;
         // console.log(geometry);
         // geometry.height = ratio;
       },
       update: function (evt: CustomEvent) {
-        console.log('update riggered');
+        // console.log('update riggered');
         this.updateMaterial();
       }
     },
