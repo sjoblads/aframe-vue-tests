@@ -47,7 +47,7 @@ function laserUpdate(active: boolean, position?: THREE.Vector3){
 
     <!-- Show active laser pointers from other users -->
     <!-- Render as a red sphere -->
-    <LaserPointerOther :point="otherPosition" @update="laserUpdate"/>
+    <LaserPointerOther :point="otherPosition"/>
 
     <a-entity v-if="isVR">
       <a-entity laser-controls="hand: right" raycaster="objects: .clickable" raycaster-update @raycast-update="setIntersection"></a-entity>
