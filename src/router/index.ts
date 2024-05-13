@@ -18,6 +18,11 @@ const router = createRouter({
       component: () => import('@/views/WallTests.vue'),
     },
     {
+      path: '/pdf',
+      name: 'pdf',
+      component: () => import('@/views/PDF.vue'),
+    },
+    {
       path: '/speech',
       name: 'speech',
       component: () => import('@/views/SpeechExperiments.vue')

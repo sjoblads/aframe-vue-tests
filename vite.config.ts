@@ -39,18 +39,25 @@ export default defineConfig({
   // define: {
   //   THREE
   // }
-  // build:{
-  //   rollupOptions: {
-  //     external: ['three'],
-  //     output: {
-  //       globals: {
-  //         three: 'THREE',
-  //         aframe: 'AFRAME'
-  //       }
+  build: {
+    target: 'es2022'
+  // rollupOptions: {
+  //   external: ['three'],
+  //   output: {
+  //     globals: {
+  //       three: 'THREE',
+  //       aframe: 'AFRAME'
   //     }
   //   }
-  // },
-  // optimizeDeps: {
-  //   exclude: ['three', 'three-mesh-ui', 'troika-three-text > three']
-  // }
+    // }
+  },
+  esbuild: {
+    target: 'es2022',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2022'
+    }
+    // exclude: ['three', 'three-mesh-ui', 'troika-three-text > three']
+  }
 })

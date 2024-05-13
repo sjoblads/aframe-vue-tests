@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowReactive, shallowRef } from 'vue';
+import { computed, ref, shallowReactive, shallowRef, watch } from 'vue';
 import sponzaUrl from '@/assets/sponza.glb?url'
 import { type DetailEvent, THREE, type Entity, type Scene } from 'aframe';
 
@@ -9,22 +9,37 @@ function arrToCoordString(arr: Array<unknown>) {
 }
 const sceneTag = ref<Scene>();
 
+// const testVector = shallowRef<THREE.Vector3>();
+// const testRotation = computed(() => {
+//   if (!testVector.value) return undefined;
+//   const defaultVector = new THREE.Vector3(0, 0, 1);
+//   const quat = new THREE.Quaternion().setFromUnitVectors(defaultVector, testVector.value);
+//   const euler = new THREE.Euler().setFromQuaternion(quat);
+//   const arr = euler.toArray() as THREE.Vector3Tuple;
+//   console.log(arr);
+
+//   const aframeRot = threeRotationToAframeRotation(arr);
+//   return aframeRot;
+// })
+
 const cursorEntity = ref<Entity>();
-function placeCursor(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
+function placeCursor(evt: DetailEvent<RayIntersectionData>) {
   const cursor = cursorEntity.value;
   if (!cursor) return;
-  const transform = intersectionToTransform(evt.detail.intersection);
+  const transform = intersectionToTransform(evt.detail);
   if (!transform) return;
   cursor.object3D.position.set(...transform.position);
   const quat = new THREE.Quaternion().fromArray(transform.rotation);
   cursor.object3D.rotation.setFromQuaternion(quat);
 }
 
-function intersectionToTransform(intersection: THREE.Intersection, normalOffset: number = 0.05) {
+function intersectionToTransform(intersectionData: RayIntersectionData, normalOffset: number = 0.05) {
+  const { intersection, rayDirection } = intersectionData;
   const position = intersection.point.clone();
   const rotation = new THREE.Quaternion();
   const normal = intersection.normal;
   if (!normal) { console.error('no normal vector in intersection object'); return; }
+
 
   //Rotation part
   const fromVector = new THREE.Vector3(0, 0, 1);
@@ -33,9 +48,12 @@ function intersectionToTransform(intersection: THREE.Intersection, normalOffset:
   euler.z = 0;
   // if flat placement, align with camera direction
   if (euler.x < (-Math.PI / 2 + 0.01)) {// && euler.x > (-Math.PI / 4 - 0.01)) {
-    const quat = new THREE.Quaternion();
-    const cameraRot = sceneTag.value!.camera.getWorldQuaternion(quat);
-    const eul = new THREE.Euler().reorder('YXZ').setFromQuaternion(cameraRot);
+    // const quat = new THREE.Quaternion();
+    // const cameraRot = sceneTag.value!.camera.getWorldQuaternion(quat);
+    // const eul = new THREE.Euler().reorder('YXZ').setFromQuaternion(cameraRot);
+
+    const quat = new THREE.Quaternion().setFromUnitVectors(fromVector, rayDirection.clone().negate());
+    const eul = new THREE.Euler().reorder('YXZ').setFromQuaternion(quat);
     euler.y = eul.y;
   }
   const quat = new THREE.Quaternion().setFromEuler(euler);
@@ -63,13 +81,16 @@ function quaternionToAframeRotation(quaternion: THREE.Quaternion): THREE.Vector3
   return threeRotationToAframeRotation(arr);
 }
 
-function onClick(evt: DetailEvent<{ intersection: THREE.Intersection }>) {
+function onClick(evt: DetailEvent<{ cursorEl: Entity, intersection: THREE.Intersection }>) {
+  const rayDirection = evt.detail.cursorEl.components.raycaster.raycaster.ray.direction;
   console.log('click!', evt);
-  placeMovedObject(evt.detail.intersection);
+
+  placeMovedObject({ intersection: evt.detail.intersection, rayDirection });
   return;
 }
 
 type UUID = ReturnType<typeof crypto.randomUUID>
+type RayIntersectionData = { intersection: THREE.Intersection, rayDirection: THREE.Vector3 };
 type placeableAssetTypes = `a-${'image' | 'sphere'}`;
 type PlaceableObject = { uuid: UUID, type: placeableAssetTypes, src: string };
 type PlacedObjectList = Array<PlaceableObject & { position: THREE.Vector3Tuple, rotation: THREE.Vector3Tuple }>
@@ -79,18 +100,22 @@ const currentlySelectedObjectId = ref<UUID | undefined>();
 const currentlyMovedEntity = ref<Entity | null>(null);
 const placedObjects = shallowReactive<PlacedObjectList>([
 ]);
+const editedObject = computed(() => {
+  return placedObjects.find(obj => obj.uuid === currentlySelectedObjectId.value)
+})
 
 
 const placedObjectsEntity = ref<Entity>();
-function placeMovedObject(intersection: THREE.Intersection) {
+function placeMovedObject(intersectionData: RayIntersectionData) {
   if (!currentlyMovedObject.value) return;
-  const transform = intersectionToTransform(intersection);
+  // const { intersection, rayDirection } = intersectionData;
+  const transform = intersectionToTransform(intersectionData);
   if (!transform) return;
   const quat = new THREE.Quaternion(...transform.rotation)
   const rotation = quaternionToAframeRotation(quat);
   const position = transform.position;
-  // const { type, src } = currentlyMovedObject.value;
-  placedObjects.push({ rotation, position, ...currentlyMovedObject.value });
+  // Note rotation and position last as they should override any preexisting pos and rot
+  placedObjects.push({ ...currentlyMovedObject.value, rotation, position, });
   currentlyMovedObject.value = undefined;
 }
 
@@ -104,11 +129,39 @@ function createPlaceableObject(type: placeableAssetTypes, src: string) {
   currentlyMovedObject.value = newPlaceableObject
 }
 
+function repositionSelectedObject() {
+  const idx = placedObjects.findIndex(obj => obj.uuid === editedObject.value?.uuid);
+  if (idx < 0) return;
+  const [obj] = placedObjects.splice(idx, 1);
+  currentlyMovedObject.value = obj;
+}
+
 function selectEntity(uuid: UUID, evt: DetailEvent<{ cursorEl: Entity, intersection: THREE.Intersection, mouseEvent: MouseEvent }>) {
   console.log(uuid);
   console.log(evt);
   currentlySelectedObjectId.value = uuid;
+  // const obj = placedObjects.find(obj => obj.uuid === uuid);
+  // const rot = obj?.rotation;
+  const rot = editedObject.value?.rotation;
+  if (!rot) {
+    console.log(rot);
+    return;
+  };
+  yaw.value = rot[1];
+  pitch.value = rot[0];
+  roll.value = rot[2];
 }
+const yaw = ref<number>(0);
+const pitch = ref<number>(0);
+const roll = ref<number>(0);
+
+watch([yaw, pitch, roll], ([newYaw, newPitch, newRoll]) => {
+  const obj = placedObjects.find(obj => obj.uuid === currentlySelectedObjectId.value)
+  if (!obj) {
+    return;
+  };
+  obj.rotation = [newPitch, newYaw, newRoll];
+})
 
 </script>
 
@@ -116,22 +169,29 @@ function selectEntity(uuid: UUID, evt: DetailEvent<{ cursorEl: Entity, intersect
   <div id="ui-overlay" class="absolute z-50 left-5 top-5">
     <button class="p-3 text-white rounded-md cursor-pointer bg-zinc-800"
       @click="createPlaceableObject('a-image', '/photos/joey-chacon-edbYu4vxXww-unsplash.jpg')"> Hello</button>
+    <div v-if="currentlySelectedObjectId">
+      <input type="range" min="-180" max="180" v-model.number="yaw">
+      <input type="range" min="-90" max="90" v-model.number="pitch">
+      <input type="range" min="-180" max="180" v-model.number="roll">
+      <button @click="repositionSelectedObject">Place again</button>
+    </div>
   </div>
   <a-scene ref="sceneTag" cursor="rayOrigin: mouse;" raycaster="objects: .raycastable" raycaster-update
     @raycast-update="placeCursor">
     <a-assets>
       <a-asset-item id="sponza" :src="sponzaUrl"></a-asset-item>
     </a-assets>
-    <a-entity position="0 0.3 0 " rotation="-45 0 0">
+
+    <!-- <a-entity position="0 0.3 0 " v-if="testRotation" :rotation="arrToCoordString(testRotation)">
       <a-ring id="cursor-ring" color="teal" radius-outer="0.2" radius-inner="0.1" />
       <a-box id="cursor-box" color="blue" scale="0.04 0.1 0.01" />
-      <a-cone id="cursor-box" color="blue" position="0 0.2 0" scale="0.1 0.1 0.1" />
-    </a-entity>
+      <a-cone id="cursor-box" rotation="90 0 0" color="blue" position="0 0.2 0" scale="0.1 0.1 0.1" />
+    </a-entity> -->
     <a-entity ref="placedObjectsEntity">
       <component v-for="placedObject in placedObjects" :key="placedObject.type"
         @click="selectEntity(placedObject.uuid, $event)" class="selectable raycastable"
-        :box-helper="`enabled: ${currentlySelectedObjectId === placedObject.uuid}`" :is="placedObject.type"
-        :src="placedObject.src" :position="arrToCoordString(placedObject.position)"
+        :box-helper="`enabled: ${currentlySelectedObjectId === placedObject.uuid}; color: #ff00ff;`"
+        :is="placedObject.type" :src="placedObject.src" :position="arrToCoordString(placedObject.position)"
         :rotation="arrToCoordString(placedObject.rotation)" />
     </a-entity>
     <a-entity ref="cursorEntity">

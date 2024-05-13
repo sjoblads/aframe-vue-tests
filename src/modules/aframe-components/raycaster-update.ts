@@ -24,9 +24,12 @@ export default function () {
       if (this.el.components.raycaster.intersectedEls.length > 0) {
         const intersectedEl = this.el.components.raycaster.intersectedEls[0] as Entity | undefined;
         if (intersectedEl) {
+          const threeRaycaster = this.el.components.raycaster.raycaster as THREE.Raycaster;
           const intersection = this.el.components.raycaster.getIntersection(intersectedEl) as THREE.Intersection;
+          const rayDirection = threeRaycaster.ray.direction;
+          
           if(!intersection.point.equals(this.fields.prev)){
-            this.el.emit('raycast-update', { intersection });
+            this.el.emit('raycast-update', { intersection, rayDirection });
           }
           this.fields.prev = intersection.point
         }
