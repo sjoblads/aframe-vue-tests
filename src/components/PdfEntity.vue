@@ -44,7 +44,7 @@ async function loadDocument(src: string) {
   if (!pdfjsLoaded.value) return;
   // @ts-ignore
   const { pdfjsLib } = globalThis;
-  const pdfDoc = pdfjsLib.getDocument('/documents/compressed.tracemonkey-pldi-09.pdf') as PDFDocumentLoadingTask;
+  const pdfDoc = pdfjsLib.getDocument(src) as PDFDocumentLoadingTask;
   loadedDoc.value = await pdfDoc.promise
   numPages = loadedDoc.value.numPages;
   console.log(numPages);
@@ -72,8 +72,10 @@ async function renderPage(pageIdx: number = 1) {
 </script>
 
 <template>
-  <a-entity ref="pdfEntityTag" :canvas-material="`autoUpdate: false; src: #${canvasSelector};`" />
-  <Teleport to="body">
-    <canvas :id="canvasSelector" style="display: block;" ref="pdfCanvasTag"></canvas>
-  </Teleport>
+  <a-entity>
+    <a-entity ref="pdfEntityTag" :canvas-material="`autoUpdate: false; src: #${canvasSelector};`" />
+    <Teleport to="body">
+      <canvas :id="canvasSelector" style="display: block;" ref="pdfCanvasTag"></canvas>
+    </Teleport>
+  </a-entity>
 </template>

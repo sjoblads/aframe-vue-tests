@@ -66,10 +66,12 @@ let loadedDoc: undefined | PDFDocumentProxy;
       <!-- <canvas ref="pdfCanvasTag" class="bg-zinc-600" id="pdf-target"></canvas> -->
     </a-assets>
     <a-box color="red" position="-1 1 -3" />
-    <a-entity scale="2 2 1" position="0 1.7 0">
+    <a-entity>
       <!-- <a-entity ref="pdfInVrTag" canvas-material="autoUpdate: false; src: #pdf-target" /> -->
-      <PdfEntity src="/documents/compressed.tracemonkey-pldi-09.pdf" :current-page="activePage" />
     </a-entity>
+    <PdfEntity src="/documents/compressed.tracemonkey-pldi-09.pdf" :current-page="activePage" scale="2 2 1"
+      position="0 1.7 0" />
+    <PdfEntity src="/documents/sample.pdf" :current-page="activePage" position="3 0 0" scale="4 4 1" />
 
   </a-scene>
   <!-- <PdfEntity id="pdf-target" src="/documents/compressed.tracemonkey-pldi-09.pdf" :current-page="activePage"
