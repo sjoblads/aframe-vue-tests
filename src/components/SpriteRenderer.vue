@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 type Tuple = [number, number]
 
@@ -17,14 +17,19 @@ function drawSprite () {
   image.src = props.sheetUrl
   image.addEventListener("load", () => {
     if(canvas.value){
-    const spriteWidth = image.width / props.uvs[0];
-    const spriteHeight = image.height / props.uvs[1];
-    ctx?.drawImage(image, (props.coords[0] - 1)*spriteWidth, image.height - props.coords[1]*spriteHeight, spriteWidth, spriteHeight, 0, 0, canvas.value.width, canvas.value.height);
+      ctx?.clearRect(0, 0, canvas.value.width, canvas.value.height);
+      const spriteWidth = image.width / props.uvs[0];
+      const spriteHeight = image.height / props.uvs[1];
+      ctx?.drawImage(image, (props.coords[0] - 1)*spriteWidth, image.height - props.coords[1]*spriteHeight, spriteWidth, spriteHeight, 0, 0, canvas.value.width, canvas.value.height);
     }
   })
 }
 
 onMounted ( () => {
+  drawSprite()
+})
+
+watch(() => props.coords, () => {
   drawSprite()
 })
 

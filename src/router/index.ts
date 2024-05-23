@@ -52,6 +52,11 @@ const router = createRouter({
       name: 'emoji',
       component: () => import('@/views/EmojiScene.vue')
     },
+    {
+      path: '/ui',
+      name: 'ui',
+      component: () => import('@/views/UIScene.vue')
+    },
   ]
 })
 

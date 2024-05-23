@@ -32,6 +32,7 @@ export default async function registerComponents() {
   // await import('aframe-troika-text');
   await import('aframe-atlas-uvs-component');
   await import('aframe-orbit-controls');
+  await import('aframe-look-at-component');
   
   componentsRegistered = true;
 }
