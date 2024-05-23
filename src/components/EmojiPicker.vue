@@ -30,10 +30,12 @@ const emit = defineEmits<{
 const selectedCoords = ref<Tuple>(props.coords[0])
 const active = ref(false)
 
+const timeout = ref(-1)
 function onEmojiSelected () {
   active.value = true
   emitChange()
-  window.setTimeout(() => {
+  clearTimeout(timeout.value)
+  timeout.value = window.setTimeout(() => {
     active.value = false
     emitChange()
   }, 10000)
@@ -54,9 +56,9 @@ function emitChange() {
         <div class="relative mt-1">
           <ListboxButton
             class="relative w-full cursor-default rounded-lg bg-white py-2 pl-4 pr-4 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-            :class="{'opacity-50': !active, 'transition': !active}"
+            
           >
-            <SpriteRender v-if="selectedCoords" class="sprite" :sheet-url="sheetUrl" :uvs="uvs" :coords="selectedCoords"/>
+            <SpriteRender v-if="selectedCoords" class="sprite" :sheet-url="sheetUrl" :uvs="uvs" :coords="selectedCoords" :class="{'opacity-75': !active, 'transition': !active}"/>
           </ListboxButton>
 
           
