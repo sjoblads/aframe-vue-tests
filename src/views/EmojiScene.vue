@@ -6,6 +6,7 @@ import { type DetailEvent, THREE, type Scene } from 'aframe';
 import UIOverlay from '@/components/UIOverlay.vue';
 import EmojiPicker from '@/components/EmojiPicker.vue';
 import EmojiOther from '@/components/EmojiOther.vue';
+import EmojiSelf from '@/components/EmojiSelf.vue';
 
 import emojiSheetUrl from '@/assets/sprite-128.png';
 
@@ -39,13 +40,15 @@ function setEmojiSelf(coords: Tuple, active: boolean) {
       <a-asset-item id="sponza" :src="sponzaUrl"></a-asset-item>
     </a-assets>
 
-    <a-entity camera="active: true" look-controls wasd-controls position="9 1.6 0" rotation="90 190 90"></a-entity>
+    <a-entity camera="active: true" look-controls wasd-controls position="9 1.6 0" rotation="90 190 90">
+      <EmojiSelf :sheet-url="emojiSheetUrl" :coords="emojiCoordsOther" :active="emojiActiveOther"/>
+    </a-entity>
 
     <a-entity v-if="isVR">
     </a-entity>
 
     <!-- Other user entity -->
-    <a-entity position="9 0 -3">
+    <a-entity position="10 0 -3">
       <!-- Other user's avatar -->
       <a-sphere position="0 0.9 0" scale="0.4 0.9 0.3"/>
       <!-- Emoji entity -->

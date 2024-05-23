@@ -36,7 +36,7 @@ function onEmojiSelected () {
   window.setTimeout(() => {
     active.value = false
     emitChange()
-  }, 15000)
+  }, 10000)
 }
 
 function emitChange() {
