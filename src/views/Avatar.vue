@@ -11,13 +11,15 @@ const avatarAssets = {
   hands: ['hands_basic_left'],
   heads: ['heads_basic'],
   torsos: ['torsos_basic_male'],
-  eyes: ['eyes_huge', 'eyes_relaxed'],
-  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', undefined],
-  hair: ['hair_ponytail', 'hair_multicolor', 'hair_thick_buzzcut', undefined],
-  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile'],
-  clothes: ['clothes_poloshirt', undefined],
+  eyes: ['eyes_cool', 'eyes_huge', 'eyes_kind', 'eyes_npc', 'eyes_relaxed', 'eyes_round'],
+  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', 'eyebrows_npc', 'eyebrows_reynolds', 'eyebrows_tyler', undefined],
+  hair: ['hair_cool', 'hair_kevin', 'hair_ponytail', 'hair_multicolor', 'hair_thick_buzzcut', 'hair_wolf', undefined],
+  facialhair: ['facialhair_almond', 'facialhair_bigboi', 'facialhair_curled', 'facialhair_johnny', 'facialhair_laotzu', undefined],
+  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile', 'mouth_npc'],
+  clothes: ['clothes_poloshirt', 'clothes_tshirt', 'clothes_turtleneck', 'clothes_vneck', 'clothes_button_dress', 'clothes_fancy_dress', 'clothes_casual_dress', undefined],
+  layer: ['layer_lowrider', 'layer_safari', undefined],
   accessories: [undefined, 'accessories_cateye', 'accessories_round', 'accessories_square'],
-  jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
+  jewelry: ['jewelry_diamond', 'jewelry_diamond_tripple', 'jewelry_honeycomb_gold', 'jewelry_honeycomb_silver', 'jewelry_hoopdrop_gold', 'jewelry_hoopdrop_silver', 'jewelry_pearl', 'jewelry_pearl_tripple', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', 'jewelry_star_gold', 'jewelry_star_silver', 'jewelry_star_tripple_gold', 'jewelry_star_tripple_silver', undefined],
 };
 
 const skinParts = ['hands', 'heads', 'torsos'];
