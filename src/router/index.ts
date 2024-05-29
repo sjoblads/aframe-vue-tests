@@ -38,9 +38,14 @@ const router = createRouter({
       component: () => import('@/views/VR2.vue')
     },
     {
+      path: '/avatarold',
+      name: 'avatarold',
+      component: () => import('@/views/Avatar.vue')
+    },
+    {
       path: '/avatar',
       name: 'avatar',
-      component: () => import('@/views/Avatar.vue')
+      component: () => import('@/views/AvatarScene.vue')
     },
     {
       path: '/laser',
