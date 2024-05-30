@@ -67,6 +67,11 @@ const router = createRouter({
       name: 'colorpicker',
       component: () => import('@/views/ColorPickerScene.vue')
     },
+    {
+      path: '/openproject',
+      name: 'openproject',
+      component: () => import('@/views/OpenProject.vue')
+    },
   ]
 })
 
