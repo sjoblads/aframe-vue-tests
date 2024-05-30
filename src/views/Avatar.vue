@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
-// import { useStorage } from '@vueuse/core';
+import { ref, reactive, onBeforeMount, watch } from 'vue';
 import lampUrl from '@/assets/LightsPunctualLamp.glb?url'
 import type { Entity } from 'aframe';
+
+onBeforeMount(() => {
+  // loadAvatarFromStorage();
+})
 
 const avatarAssets = {
   hands: ['hands_basic_left'],
   heads: ['heads_basic'],
   torsos: ['torsos_basic_male'],
-  eyes: ['eyes_huge', 'eyes_relaxed'],
-  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', undefined],
-  hair: ['hair_ponytail', 'hair_thick_buzzcut', undefined],
-  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile', undefined],
-  clothes: ['clothes_poloshirt', undefined],
-  accessories: ['accessories_cateye', 'accessories_round', 'accessories_square', undefined],
-  jewelry: ['jewelry_pearl', 'jewelry_diamond', 'jewelry_diamond2', 'jewelry_diamond3', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', undefined],
+  eyes: ['eyes_cool', 'eyes_huge', 'eyes_kind', 'eyes_npc', 'eyes_relaxed', 'eyes_round'],
+  eyebrows: ['eyebrows_brookie', 'eyebrows_innocent', 'eyebrows_npc', 'eyebrows_reynolds', 'eyebrows_tyler', undefined],
+  hair: ['hair_cool', 'hair_kevin', 'hair_ponytail', 'hair_multicolor', 'hair_thick_buzzcut', 'hair_wolf', undefined],
+  facialhair: ['facialhair_almond', 'facialhair_bigboi', 'facialhair_curled', 'facialhair_johnny', 'facialhair_laotzu', undefined],
+  mouths: ['mouth_polite_smile', 'mouth_prettypolite_smile', 'mouth_npc'],
+  clothes: ['clothes_poloshirt', 'clothes_tshirt', 'clothes_turtleneck', 'clothes_vneck', 'clothes_button_dress', 'clothes_fancy_dress', 'clothes_casual_dress', undefined],
+  layer: ['layer_lowrider', 'layer_safari', undefined],
+  accessories: [undefined, 'accessories_cateye', 'accessories_round', 'accessories_square'],
+  jewelry: ['jewelry_diamond', 'jewelry_diamond_tripple', 'jewelry_honeycomb_gold', 'jewelry_honeycomb_silver', 'jewelry_hoopdrop_gold', 'jewelry_hoopdrop_silver', 'jewelry_pearl', 'jewelry_pearl_tripple', 'jewelry_sparkling_hoopdrop_gold', 'jewelry_sparkling_hoopdrop_silver', 'jewelry_star_gold', 'jewelry_star_silver', 'jewelry_star_tripple_gold', 'jewelry_star_tripple_silver', undefined],
 };
-
-// const avatarSettingsInStorage = useStorage('avatarSettings', {});
 
 const skinParts = ['hands', 'heads', 'torsos'];
 
-const currentAvatarSettings = reactive({ skinColor: '', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k as keyof typeof avatarAssets, { model: p[0], colors: [''] }])) })
-
-// watch(currentAvatarSettings, (newSettings) => {
-//   window.localStorage.setItem('avatarSettings', JSON.stringify(newSettings));
-// })
+const currentAvatarSettings = reactive({ skinColor: '', parts: Object.fromEntries(Object.entries(avatarAssets).map(([k, p]) => [k as keyof typeof avatarAssets, { model: p[0], colors: [] }])) })
 
 function saveAvatarSettingsToStorage() {
   window.localStorage.setItem('avatarSettings', JSON.stringify(currentAvatarSettings));
@@ -42,28 +41,44 @@ function loadAvatarFromStorage() {
   currentAvatarSettings.skinColor = parsedAvatarSettings.skinColor;
 }
 
+const currentColorSettings = reactive(Object.fromEntries(Object.keys(avatarAssets).map((k) => [k as keyof typeof avatarAssets, []])));
+const customColorsIsActive = reactive(Object.fromEntries(Object.keys(avatarAssets).map(k => [k, [false, false]])));
+const currentSkinColor = ref('');
+const skinColorIsActive = ref(false);
+
+// watch(customColorsIsActive, (newV, oldV) => {
+//   console.log(newV);
+// }, { deep: true });
+
+function onColorPicked(part: string, colorIdx: number, color: string) {
+  console.log('color picked', part, colorIdx, color);
+  currentAvatarSettings.parts[part].colors[colorIdx] = color;
+}
+
+watch([skinColorIsActive, currentSkinColor], ([active, newColor]) => {
+  if (!active || !currentSkinColor.value) {
+    currentAvatarSettings.skinColor = '';
+  } else {
+    currentAvatarSettings.skinColor = newColor;
+  }
+})
+
+function onCustomColorActiveChanged(part: string, colorIdx: number, active: boolean) {
+  if (!active || !currentColorSettings[part][colorIdx]) {
+    currentAvatarSettings.parts[part].colors[colorIdx] = '';
+  } else {
+    currentAvatarSettings.parts[part].colors[colorIdx] = currentColorSettings[part][colorIdx];
+  }
+}
+
 const mouthFlipAssets = ref(['flip_a_e_i', 'flip_b_m_p', 'flip_c_d_n_s_t_x_y_z', 'flip_e', 'flip_f_v', 'flip_i_ch_sh', 'flip_l', 'flip_o', 'flip_r', 'flip_th', 'flip_u'])
-
-const pickedColors = reactive({
-  color1: '#ff00ff',
-  color2: '#00ffff',
-  color3: '#f0f0ff',
-  color4: '#ff0000',
-  color5: '#000000',
-})
-
-const modelEntityTags = ref<Entity[]>([]);
-
-const modelEntitiesWithCOlors = computed(() => {
-  return modelEntityTags.value.map((el) => ({ el, nrOfColors: el.components['model-color'].nrOfCustomColors }))
-})
 
 const partsNrOfColors = reactive(Object.fromEntries(Object.keys(avatarAssets).map(k => [k, 0])))
 function setNrOfCustomColors(part: string, evt: CustomEvent) {
-  console.log(evt, part);
+  // console.log(evt, part);
   const entity = evt.target as Entity;
   const nrOfColors = entity.components['model-color'].nrOfCustomColors;
-  console.log(nrOfColors);
+  // console.log(nrOfColors);
   partsNrOfColors[part] = nrOfColors;
 }
 
@@ -89,28 +104,37 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
 
 <template>
   <div id="colorpickers-container" style="position: absolute; left: 5rem; top: 5rem; z-index: 5000;">
-    <div class="grid justify-center grid-cols-[auto_auto_auto_auto_auto] items-center gap-7">
+    <div class="grid justify-center grid-cols-[auto_auto_auto_auto_auto] items-center gap-3">
       <div class="col-span-3 col-start-1 text-center">
         skin color
       </div>
+      <input type="checkbox" v-model="skinColorIsActive">
       <div
-        class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
-        <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="currentAvatarSettings.skinColor">
+        class="has-[:disabled]:outline-slate-700/40 bg-transparent inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
+        <input :disabled="!skinColorIsActive" class="disabled:invisible size-[200%] m-[-50%] cursor-pointer"
+          type="color" v-model="currentSkinColor">
       </div>
-      <template v-for="(modelSetting, key) in currentAvatarSettings.parts" :key="key">
+      <template v-for="(partsList, key) in avatarAssets" :key="key">
         <template v-if="avatarAssets[key].length > 1">
           <div class="grid items-center col-span-3 col-start-1 grid-cols-subgrid">
             <button @click="changeClothingIdx(key, -1)"
               class="p-2 rounded-full bg-slate-700 text-slate-50">&lt;</button>
-            <span class="text-center">{{ key }} {{ avatarAssets[key].length }}</span>
-            <button @click="changeClothingIdx(key, -1)"
-              class="p-2 rounded-full bg-slate-700 text-slate-50">&gt;</button>
+            <span class="text-center">{{ key }} {{ avatarAssets[key].indexOf(currentAvatarSettings.parts[key].model)
+              }}</span>
+            <button @click="changeClothingIdx(key, 1)" class="p-2 rounded-full bg-slate-700 text-slate-50">&gt;</button>
           </div>
-          <template v-for="cIdx in partsNrOfColors[key]" :key="cIdx">
-            <div
-              class="inline-block m-2 overflow-hidden rounded-full size-7 outline-offset-2 outline-2 outline outline-slate-700">
-              <input class="size-[200%] m-[-50%] cursor-pointer" type="color" v-model="modelSetting.colors[cIdx - 1]">
-            </div>
+          <template v-for="(_v, cIdx) in partsNrOfColors[key]" :key="cIdx">
+            <div>
+
+              <input type="checkbox" @input="onCustomColorActiveChanged(key, cIdx, $event.target.checked)"
+                v-model="customColorsIsActive[key][cIdx]">
+              <div
+                class="has-[:disabled]:outline-slate-700/40 bg-transparent inline-block m-2 overflow-hidden rounded-full disabled:size-1 size-7 outline-offset-2 outline-2 outline outline-slate-700">
+                <input :disabled="!customColorsIsActive[key][cIdx]"
+                  class="disabled:invisible size-[200%] m-[-50%] cursor-pointer" type="color"
+                  @input="onColorPicked(key, cIdx, $event.target.value)" v-model="currentColorSettings[key][cIdx]"
+                  </div>
+              </div>
           </template>
         </template>
       </template>
@@ -119,10 +143,10 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
       <button class="p-3 text-white rounded-xl bg-slate-800" @click="saveAvatarSettingsToStorage">save</button>
       <button class="p-3 text-white rounded-xl bg-slate-800" @click="loadAvatarFromStorage">load</button>
     </div>
-    <!-- <template v-for="(color, key) in pickedColors" :key="key">
-
-      <input style="margin-right: 1rem;" v-model="pickedColors[key]" type="color">
-    </template> -->
+  </div>
+  <div class="absolute top-0 right-0 z-50 h-screen p-10 overflow-y-scroll">
+    <pre class="text-xs">{{ currentColorSettings }}</pre>
+    <pre class="text-xs">{{ currentAvatarSettings }}</pre>
   </div>
   <a-scene ref="sceneTag" style="width: 100vw; height: 100vh;" cursor="fuse:false; rayOrigin:mouse;"
     raycaster="objects: .clickable" xr-mode-ui="enabled: false;">
@@ -131,12 +155,6 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
       <template v-for="(fileNames, prop) in avatarAssets" :key="prop">
         <a-asset-item :id="`${prop}-${idx}`" v-for="(fileName, idx) in fileNames" :key="fileName"
           :src="`/avatar/${prop}/${fileName}.glb`" />
-        <!-- <template v-else>
-          <a-asset-item :id="`${prop}-${idx}-left`" v-for="(fileName, idx) in fileNames" :key="fileName"
-            :src="`/avatar/${prop}/${fileName}_left.glb`" />
-          <a-asset-item :id="`${prop}-${idx}-right`" v-for="(fileName, idx) in fileNames" :key="fileName"
-            :src="`/avatar/${prop}/${fileName}_right.glb`" /> -->
-        <!-- </template> -->
       </template>
       <!-- <a-asset-item id="shirt-colorable" src="/custom-props/PoloShirt_colorable.glb" />
       <a-asset-item id="hair-colorable" src="/custom-props/PT_Colorable_HairTie.glb" />
@@ -153,7 +171,7 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
 
     <!-- <a-camera wasd-controls="acceleration: 15;" /> -->
     <a-entity camera look-controls="enabled: false"
-      orbit-controls="minDistance: 0.7; maxDistance: 4; initialPosition: 0 0.4 1; rotateSpeed: 0.5; zoomSpeed: 1.6; autoRotate: true; enablePan: false;"></a-entity>
+      orbit-controls="minDistance: 0.7; maxDistance: 4; initialPosition: 0 0.4 1; rotateSpeed: 0.5; zoomSpeed: 1.6; autoRotate: false; enablePan: false;"></a-entity>
     <a-sky color="skyblue"></a-sky>
     <a-entity laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
     <a-entity laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
@@ -183,8 +201,7 @@ function changeClothingIdx(partType: keyof typeof avatarAssets, offset: number) 
               :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
               :model-color="`colors: ${currentAvatarSettings.skinColor ?? ''}; materialName: skin`" scale="-1 1 1" />
           </template>
-          <a-gltf-model v-else make-gltf-swappable ref="modelEntityTags"
-            @nrOfCustomColors="setNrOfCustomColors(key, $event)"
+          <a-gltf-model v-else make-gltf-swappable @nrOfCustomColors="setNrOfCustomColors(key, $event)"
             :src="`#${key}-${avatarAssets[key as keyof typeof avatarAssets].indexOf(modelSetting.model)}`"
             :model-color="`colors: ${modelSetting.colors ?? ''};`" />
 

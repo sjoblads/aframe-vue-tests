@@ -13,6 +13,16 @@ const router = createRouter({
       component: () => import('@/views/Sandbox.vue'),
     },
     {
+      path: '/wall',
+      name: 'wall',
+      component: () => import('@/views/WallTests.vue'),
+    },
+    {
+      path: '/pdf',
+      name: 'pdf',
+      component: () => import('@/views/PDF.vue'),
+    },
+    {
       path: '/speech',
       name: 'speech',
       component: () => import('@/views/SpeechExperiments.vue')
@@ -28,9 +38,34 @@ const router = createRouter({
       component: () => import('@/views/VR2.vue')
     },
     {
+      path: '/avatarold',
+      name: 'avatarold',
+      component: () => import('@/views/Avatar.vue')
+    },
+    {
       path: '/avatar',
       name: 'avatar',
-      component: () => import('@/views/Avatar.vue')
+      component: () => import('@/views/AvatarScene.vue')
+    },
+    {
+      path: '/laser',
+      name: 'laser',
+      component: () => import('@/views/LaserScene.vue')
+    },
+    {
+      path: '/emoji',
+      name: 'emoji',
+      component: () => import('@/views/EmojiScene.vue')
+    },
+    {
+      path: '/ui',
+      name: 'ui',
+      component: () => import('@/views/UIScene.vue')
+    },
+    {
+      path: '/colorpicker',
+      name: 'colorpicker',
+      component: () => import('@/views/ColorPickerScene.vue')
     },
   ]
 })

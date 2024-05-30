@@ -3,32 +3,62 @@ import { THREE } from "aframe";
 export default () => {
 
   AFRAME.registerComponent('model-color', {
+    dependencies: ['gltf-model'],
     schema: {
       colors: {type: 'array'},
       materialName: { type: 'string', default: 'color' }
     },
     nrOfCustomColors: 0,
+    defaultColorsStashed: false,
+    modelLoaded: false,
+    stashedDefaultColors: undefined as THREE.Color[] | undefined,
     // threeColor: undefined as undefined | THREE.Color,
     init: function () {
+      this.stashedDefaultColors = [];
       // console.log(this.el);
-      this.el.addEventListener('model-loaded', this.update.bind(this));
+      this.el.addEventListener('model-loaded', () => {
+        // console.log('model loaded event');
+        this.modelLoaded = true;
+        this.defaultColorsStashed = false;
+        // this.stashDefaultColors();
+        // console.log('calling update manually');
+        this.update();
+      })
+      // this.el.addEventListener('model-loaded', this.update.bind(this));
+      // this.el.addEventListener('model-loaded', this.stashDefaultColors.bind(this));
       // TODO: verify we can remove this call to update and then do just that!
-      this.update();
+      // this.update();
       // this.checkCustomProps(this.el.object3D);
       // this.checkCustomProps(this.el.getObject3D('mesh'));
       // console.log(this.el.object3D);
       // console.log(this.el.object3DMap);
     },
     update: function () {
-      // console.log('model-color updated:', this.data);
+      // console.log('model-color updated:', this.data.colors);
+      if (!this.modelLoaded) {
+        // console.log('model not yet loaded. skipping');
+        return;
+      }
+      if (!this.defaultColorsStashed) {
+        // console.log('default colors not stashed. stashing now.');
+        this.stashDefaultColors();
+        // return;
+      }
       const materialName = this.data.materialName as string;
       // console.log(this.el.object3D);
       // console.log(this.el.object3DMap);
       const mesh = this.el.getObject3D('mesh');
       // console.log('mesh:', mesh);
       const colors: THREE.Color[] = [];
-      for(let i = 0; i < this.data.colors.length; i++){
-        colors[i] = new THREE.Color(this.data.colors[i]);
+      for (let i = 0; i < this.stashedDefaultColors.length; i++) {
+        if (!this.data.colors[i] || this.data.colors[i] === '') {
+          // console.log('using default color', i, this.stashedDefaultColors[i]);
+          colors[i] = this.stashedDefaultColors[i].clone();
+          // console.log(this.stashedDefaultColors);
+          // console.log(colors);
+        } else {
+          colors[i] = new THREE.Color(this.data.colors[i]);
+        }
       }
       if (!mesh) { return; }
       // this.recursiveStoppableTraverse(mesh, function (node) {
@@ -52,11 +82,7 @@ export default () => {
         const mesh = node as THREE.Mesh;
         if (mesh.isMesh) {
           const material = mesh.material
-          if(Array.isArray(material)) return;
-          // if('ColorableHairtie' in mesh.userData) {
-          //   console.log('found colorable');
-          //   return;
-          // }
+          if (Array.isArray(material)) return;
           if (material.name.startsWith(materialName)) {
             let digit = Number.parseInt(material.name.substring(materialName.length));
             if (isNaN(digit)) {
@@ -71,9 +97,6 @@ export default () => {
               material.color = colors[digit-1];
             }
           }
-          // mesh.material.opacity = opacity;
-          // mesh.material.transparent = opacity < 1.0;
-          // mesh.material.needsUpdate = true;
         }
       });
       if (maxColorDigit !== this.nrOfCustomColors) {
@@ -81,30 +104,46 @@ export default () => {
         this.el.emit('nrOfCustomColors', this.nrOfCustomColors);
       }
     },
-    // checkCustomProps: function(root: THREE.Object3D) {
-    //   // console.log('checking custom props');
-    //   if(!root) return;
-    //   root.traverse( function (node) {
-    //     // if(Object.keys(node.userData).length !== 0) {
-    //       console.log('checking custom props in node');
-    //       console.log('node name:', node.name, node.id, node.type);
-    //       console.log('userData:', node.userData);
-    //       // console.log(node.userData);
-    //     // }
-    //   })
-    // },
-    recursiveStoppableTraverse: function(root: THREE.Object3D, callBack: (node: THREE.Object3D) => boolean) {
-      // console.log('travers is on node:', root);
-      const shouldStop = callBack(root);
-      if(shouldStop){
-        // console.log('callback gave stop signal');
-        return;
-      }
-      const children = root.children;
-      for(const child of children) {
-        // console.log('recursing on:', child);
-        this.recursiveStoppableTraverse(child, callBack);
-      }
+    stashDefaultColors: function () {
+      // console.log('stashing colors');
+      const rootMesh = this.el.getObject3D('mesh');
+      if (!rootMesh) { return; }
+      const materialName = this.data.materialName as string;
+      rootMesh.traverse((node) => {
+        const mesh = node as THREE.Mesh;
+        if (mesh.isMesh) {
+          const material = mesh.material
+          if (Array.isArray(material)) return;
+          if (material.name.startsWith(materialName)) {
+            let digit = Number.parseInt(material.name.substring(materialName.length));
+            if (isNaN(digit)) {
+              // console.warn('no digit on custom material. using digit 1');
+              digit = 1;
+              // return;
+            }
+            digit -= 1;
+            if ('color' in material && digit >= 0) {
+              // console.log('found default color:', digit, material.color);
+              this.stashedDefaultColors[digit] = material.color.clone() as THREE.Color;
+            }
+          }
+        }
+      });
+      // console.log('stashed color:', this.stashedDefaultColors);
+      this.defaultColorsStashed = true;
     }
+    // recursiveStoppableTraverse: function(root: THREE.Object3D, callBack: (node: THREE.Object3D) => boolean) {
+    //   // console.log('travers is on node:', root);
+    //   const shouldStop = callBack(root);
+    //   if(shouldStop){
+    //     // console.log('callback gave stop signal');
+    //     return;
+    //   }
+    //   const children = root.children;
+    //   for(const child of children) {
+    //     // console.log('recursing on:', child);
+    //     this.recursiveStoppableTraverse(child, callBack);
+    //   }
+    // }
   });
 };
